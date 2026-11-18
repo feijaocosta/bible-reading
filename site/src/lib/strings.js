@@ -51,6 +51,7 @@ export const t = {
   autoplayOff: 'Tocar em sequência: desligado',
   autoplayShort: 'Sequência',
   downloadBook: (n) => `Baixar o livro (${n} ${n === 1 ? 'leitura' : 'leituras'})`,
+  downloadRest: (n) => `Baixar o restante (${n} ${n === 1 ? 'leitura' : 'leituras'})`,
   downloadBookAbout: (mb) => `cerca de ${mb} MB`,
   downloadingBook: (done, total) => `Baixando ${done} de ${total}…`,
   bookDownloaded: 'Livro inteiro baixado',
@@ -65,4 +66,6 @@ export const t = {
   unknownReading: 'Leitura baixada',
   updateAvailable: 'Nova versão disponível',
   update: 'Atualizar',
+  offline: 'baixado (ouve sem internet)',
+  offlineShort: 'baixado',
 };

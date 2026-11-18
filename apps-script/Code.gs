@@ -59,10 +59,23 @@ function setupForm() {
   Logger.log('Questions ready. Now add the "' + Q.AUDIO + '" file upload question by hand (docs/SETUP, section 3).');
 }
 
+// Reads data/books.json through the GitHub API with the same token, so it works for private repos too.
 function fetchBooks_() {
   var repo = property_('GITHUB_REPO');
-  var res = UrlFetchApp.fetch('https://raw.githubusercontent.com/' + repo + '/main/data/books.json', { muteHttpExceptions: true });
-  if (res.getResponseCode() !== 200) throw new Error('Could not read data/books.json from ' + repo + ' (HTTP ' + res.getResponseCode() + ').');
+  var res = UrlFetchApp.fetch('https://api.github.com/repos/' + repo + '/contents/data/books.json', {
+    headers: {
+      Authorization: 'Bearer ' + property_('GITHUB_TOKEN_DISPATCH'),
+      Accept: 'application/vnd.github.raw+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+    },
+    muteHttpExceptions: true,
+  });
+  var code = res.getResponseCode();
+  if (code !== 200) {
+    throw new Error('Não foi possível ler data/books.json de "' + repo + '" (HTTP ' + code + '). ' +
+      'Confira a propriedade GITHUB_REPO (formato dono/repositório, sem espaços) e se o token ' +
+      'GITHUB_TOKEN_DISPATCH tem acesso a esse repositório.');
+  }
   return JSON.parse(res.getContentText());
 }
 
@@ -155,7 +168,7 @@ function dispatch_(payload) {
 }
 
 function property_(name) {
-  var value = PropertiesService.getScriptProperties().getProperty(name);
+  var value = (PropertiesService.getScriptProperties().getProperty(name) || '').trim();
   if (!value) throw new Error('A propriedade ' + name + ' não está configurada (Configurações do projeto → Propriedades do script).');
   return value;
 }

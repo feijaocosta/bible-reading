@@ -43,4 +43,8 @@ export const t = {
   notFound: 'Página não encontrada',
   home: 'Ir para o início',
   nowPlaying: 'Tocando agora',
+  loading: 'Carregando…',
+  speed: (s) => `Velocidade ${String(s).replace('.', ',')}x`,
+  playFailed: 'Não foi possível tocar o áudio. Verifique a internet.',
+  tryAgain: 'Tentar de novo',
 };

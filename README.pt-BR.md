@@ -53,7 +53,7 @@ Em construção, por fases:
 - [x] F2 — Execução manual no GitHub Actions
 - [x] F3 — Upload no YouTube + catálogo
 - [x] F4 — Entrada pelo Google Forms
-- [ ] F5 — PWA
+- [x] F5 — PWA
 - [ ] F6 — Retorno do status na planilha
 
 ## Gerando um vídeo no GitHub Actions

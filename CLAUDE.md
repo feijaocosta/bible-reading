@@ -195,8 +195,8 @@ Nomes dos livros conforme a **NVI** (Nova Versão Internacional). Cada item tem 
 - **SvelteKit + adapter-static**, todas as páginas pré-geradas a partir do catálogo no build (`site/`). Telas aprovadas: Início, Livro, Ouvindo, Leitora, com mini player persistente.
 - **URLs únicas:** `/` · `/<livro>/` · `/<livro>/<capítulo|introducao|encerramento>/` (leitura mais recente) · `/<livro>/<parte>/<leitora>/` (leitura específica; é o link do botão Compartilhar) · `/leitora/<leitora>/`. Cada página tem Open Graph (prévia com a arte no WhatsApp).
 - **Áudio próprio, não o YouTube:** o app toca o MP3 servido pelo próprio Pages (`/audio/<tag>/<arquivo>`, copiado do Releases por `site/scripts/fetch-media.js` no deploy) (toca com a tela bloqueada, Media Session na tela de bloqueio). Leituras antigas sem `audioUrl` mostram o embed `youtube-nocookie.com`. O botão "Ver no YouTube" leva ao vídeo.
-- **Recursos:** busca por livro e leitora; recentes; continuar de onde parou (localStorage); capítulos sem áudio aparecem apagados; anterior/próximo; compartilhar (Web Share ou copiar link); **baixar para ouvir offline** (Cache Storage + service worker com suporte a Range).
-- **Cache:** shell + páginas visitadas (network-first) e, só quando a pessoa toca em "Baixar", o MP3 e a capa. Vídeos nunca.
+- **Recursos:** busca por livro e leitora; recentes; continuar de onde parou (localStorage); capítulos sem áudio aparecem apagados; anterior/próximo; compartilhar (Web Share ou copiar link); **baixar para ouvir offline** (MP3 no Cache Storage, tocado por blob URL); velocidade 0,75–1,5x; indicador de carregando e recuperação automática de falhas de rede.
+- **Cache:** o service worker guarda só o shell e as páginas visitadas (network-first) e **nunca intercepta áudio** (o Safari recusa mídia devolvida por service worker após redirect). O MP3 só é guardado quando a pessoa toca em "Baixar". Vídeos nunca.
 - Instalável (manifest + ícones a partir de `brand/avatar.png`). Mobile first, acessível. Textos em `site/src/lib/strings.js`.
 - Recursos visuais do app (aquarelas, fontes) gerados de `pipeline/template/assets` por `site/scripts/prepare-assets.js`.
 - Deploy: `.github/workflows/deploy-site.yml` (push em `site/` ou `data/`, manual, e chamado pelo `new-reading.yml` após cada publicação, porque commits do bot não disparam workflows).
@@ -234,7 +234,7 @@ Cada fase termina com algo testável. **Não avance sem a anterior funcionando.*
 - [x] **F2 — Actions manual:** workflow com `workflow_dispatch` (inputs manuais + URL ou caminho do áudio de teste) gera o MP4 e publica como artifact.
 - [x] **F3 — YouTube + catálogo:** upload, playlist, atualização do `readings.json` com commit pelo bot. Idempotente.
 - [x] **F4 — Entrada pelo Forms:** download do Drive via service account + `apps-script/Code.gs` disparando o `repository_dispatch`.
-- [ ] **F5 — PWA:** escolha do framework, navegação, player, instalação, deploy no Pages.
+- [x] **F5 — PWA:** escolha do framework, navegação, player, instalação, deploy no Pages.
 - [ ] **F6 — Retorno para a coordenadora:** o workflow escreve status (`processando` / `publicado` / `erro`) e o link do vídeo de volta na planilha de respostas.
 
 ## 10. Como trabalhar neste repo

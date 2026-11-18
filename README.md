@@ -53,7 +53,7 @@ Work in progress, built in phases:
 - [x] F2 — Manual GitHub Actions run
 - [x] F3 — YouTube upload + catalog
 - [x] F4 — Google Forms input
-- [ ] F5 — PWA
+- [x] F5 — PWA
 - [ ] F6 — Status feedback in the spreadsheet
 
 ## Generating a video on GitHub Actions

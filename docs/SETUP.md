@@ -257,6 +257,15 @@ The app is published on GitHub Pages, which is free for public repositories. Don
 - **Android (Chrome):** open the address → **⋮** menu → **Install app** (or **Add to Home screen**).
 - **iPhone (Safari):** open the address → **Share** button → **Add to Home Screen**.
 
+### 4.5. Older readings without app audio
+
+Readings published before the app's own audio existed show the YouTube video in the app. To generate their audio:
+
+1. Open [data/readings.json](../data/readings.json) and copy the reading's `id` (the text in quotes after `"id":`).
+2. Get the link to the original audio. If it was sent through the form, it is in the form's response folder on Drive: right-click the file → **Share** → **Copy link**. No need to change the sharing, because the service account can already read that folder.
+3. **Actions** tab → **Gerar áudio do app** → **Run workflow**. Paste the id and the link → **Run workflow**.
+4. In about 3 minutes, the reading plays with its own audio in the app. YouTube is not changed.
+
 ### What the app does
 
 - Plays each reading's **own audio** (MP3 stored in GitHub Releases), including with the screen locked.

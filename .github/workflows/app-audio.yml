@@ -1,0 +1,93 @@
+# Adds the app audio (MP3 + cover) to a reading that is already published, e.g. readings from before
+# the app existed. YouTube is not touched. Then republishes the app.
+name: Gerar áudio do app
+
+run-name: "Áudio do app — ${{ inputs.id }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      id:
+        description: 'ID da leitura (copie de data/readings.json, campo "id")'
+        required: true
+        type: string
+      audio:
+        description: 'Áudio original: link do Google Drive (pode ser da pasta do formulário), link direto ou Dropbox'
+        required: true
+        type: string
+      force:
+        description: 'Substituir, se a leitura já tiver áudio no app'
+        required: false
+        type: boolean
+        default: false
+
+# Same group as new-reading.yml: never two runs changing the catalog at once.
+concurrency:
+  group: new-reading
+  cancel-in-progress: false
+
+jobs:
+  audio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write # GitHub Releases + catalog commit
+    outputs:
+      updated: ${{ steps.audio.outputs.updated }}
+    defaults:
+      run:
+        working-directory: pipeline
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: pipeline/package-lock.json
+
+      - name: Install FFmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium for the artwork
+        run: npx playwright install --with-deps chromium
+
+      - name: Generate and store the app audio
+        id: audio
+        env:
+          READING_ID: ${{ inputs.id }}
+          AUDIO: ${{ inputs.audio }}
+          FORCE: ${{ inputs.force && '--force' || '' }}
+          GOOGLE_SA_JSON: ${{ secrets.GOOGLE_SA_JSON }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node src/app-audio.js --id "$READING_ID" --audio "$AUDIO" --out "$GITHUB_WORKSPACE/out/app-audio" $FORCE
+
+      - name: Commit catalog
+        if: steps.audio.outputs.updated == 'true'
+        working-directory: .
+        env:
+          READING_ID: ${{ inputs.id }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/readings.json
+          git commit -m "Add app audio to reading $READING_ID"
+          for attempt in 1 2 3; do
+            git pull --rebase origin "$BRANCH" && git push origin "HEAD:$BRANCH" && exit 0
+            echo "Push failed (attempt $attempt), retrying..."; sleep $((attempt * 5))
+          done
+          echo "::error::Could not save the catalog. Run this workflow again."
+          exit 1
+
+  site:
+    needs: audio
+    if: needs.audio.outputs.updated == 'true'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/deploy-site.yml

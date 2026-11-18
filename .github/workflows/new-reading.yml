@@ -1,11 +1,13 @@
 # Turns one reading (audio + details) into a video, publishes it on YouTube and adds it to data/readings.json.
 # The MP4 is always kept as a workflow artifact first, so a YouTube failure never loses the work.
-# F4 adds repository_dispatch (from the Google Form).
+# Triggers: the Google Form (repository_dispatch "new-reading", always publishes) or a manual run from the Actions tab.
 name: Nova leitura
 
-run-name: "${{ inputs.book }} — ${{ inputs.chapter }} — ${{ inputs.narrator }}"
+run-name: "${{ inputs.book || github.event.client_payload.book }} — ${{ inputs.chapter || github.event.client_payload.chapter || github.event.client_payload.part }} — ${{ inputs.narrator || github.event.client_payload.narrator }}"
 
 on:
+  repository_dispatch:
+    types: [new-reading]
   workflow_dispatch:
     inputs:
       book:
@@ -74,14 +76,19 @@ jobs:
       - name: Generate video
         id: generate
         env:
-          READING_ID: ${{ inputs.id || format('manual-{0}', github.run_id) }}
-          BOOK: ${{ inputs.book }}
-          CHAPTER: ${{ inputs.chapter }}
-          NARRATOR: ${{ inputs.narrator }}
-          AUDIO_URL: ${{ inputs.audio_url }}
+          READING_ID: ${{ inputs.id || github.event.client_payload.id || format('manual-{0}', github.run_id) }}
+          BOOK: ${{ inputs.book || github.event.client_payload.book }}
+          PART: ${{ github.event.client_payload.part }}
+          CHAPTER: ${{ inputs.chapter || github.event.client_payload.chapter }}
+          NARRATOR: ${{ inputs.narrator || github.event.client_payload.narrator }}
+          # Manual runs use a link; form submissions use the uploaded Drive file.
+          AUDIO: ${{ inputs.audio_url || format('drive:{0}', github.event.client_payload.driveFileId) }}
+          GOOGLE_SA_JSON: ${{ secrets.GOOGLE_SA_JSON }}
         run: |
+          # Form payloads carry part=intro|closing instead of a chapter number.
+          if [ -n "$PART" ] && [ "$PART" != "chapter" ]; then CHAPTER="$PART"; fi
           node src/index.js \
-            --audio "$AUDIO_URL" \
+            --audio "$AUDIO" \
             --book "$BOOK" \
             --chapter "$CHAPTER" \
             --narrator "$NARRATOR" \
@@ -103,9 +110,9 @@ jobs:
 
       - name: Publish on YouTube
         id: publish
-        if: inputs.publish && steps.generate.outputs.skip != 'true'
+        if: (github.event_name == 'repository_dispatch' || inputs.publish) && steps.generate.outputs.skip != 'true'
         env:
-          READING_ID: ${{ inputs.id || format('manual-{0}', github.run_id) }}
+          READING_ID: ${{ inputs.id || github.event.client_payload.id || format('manual-{0}', github.run_id) }}
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}

@@ -147,3 +147,87 @@ Pela documentação do YouTube, vídeos enviados por um projeto de API **não au
 - **Miniatura não aplicada:** o canal não foi verificado pelo celular (passo 2.1). O vídeo é publicado mesmo assim, e o aviso aparece no resumo.
 - **`invalid_grant`:** a autorização expirou ou foi revogada. Refaça o passo 2.6 e atualize o segredo `YT_REFRESH_TOKEN`.
 - **Branch `main` protegida:** se houver regra de proteção que bloqueie pushes, o commit do catálogo falha. Libere o `github-actions[bot]` ou desative a regra.
+
+## 3. Formulário (entrada automática)
+
+Feito uma vez só. Depois disso, a operação diária é **só preencher o formulário**: ao enviar, o vídeo é gerado e publicado sozinho em poucos minutos.
+
+Use a **mesma conta Google** do canal e do projeto no Google Cloud.
+
+### 3.1. Conta de serviço (para o GitHub ler o áudio no Drive)
+
+1. No [Google Cloud](https://console.cloud.google.com), com o projeto `biblia-lida-por-elas` selecionado: menu ☰ → **APIs e serviços** → **Biblioteca** → procure **Google Drive API** → **Ativar**.
+2. Menu ☰ → **IAM e administrador** → **Contas de serviço** → **Criar conta de serviço**.
+3. Nome: `leitor-drive` → **Criar e continuar** → pule as permissões (**Continuar**) → **Concluir**.
+4. Clique na conta criada → aba **Chaves** → **Adicionar chave** → **Criar nova chave** → **JSON** → **Criar**. Um arquivo `.json` é baixado.
+5. Anote o **e-mail** da conta de serviço, que termina em `@biblia-lida-por-elas.iam.gserviceaccount.com`. Ele é usado no passo 3.6.
+
+> ⚠️ Se aparecer "A criação de chaves está desativada" (política da organização), a conta Google faz parte de um Google Workspace que bloqueia chaves. Peça a quem administra o Workspace para liberar a política `iam.disableServiceAccountKeyCreation` neste projeto.
+
+6. No GitHub: **Settings** → **Secrets and variables** → **Actions** → **New repository secret**. Nome: `GOOGLE_SA_JSON`. Valor: abra o arquivo `.json` num editor de texto (Bloco de Notas), copie **todo** o conteúdo e cole.
+7. **Apague o arquivo `.json`** do computador depois de salvar o segredo.
+
+### 3.2. Token do GitHub (para o formulário avisar o GitHub)
+
+1. No GitHub, clique na sua foto → **Settings** → **Developer settings** → **Personal access tokens** → **Fine-grained tokens** → **Generate new token**.
+2. Nome: `formulario-biblia`. Expiração: a maior disponível (até 1 ano).
+3. **Repository access:** **Only select repositories** → escolha `bible-reading`.
+4. **Permissions** → **Repository permissions** → **Contents** → **Read and write**.
+5. **Generate token** e copie o token (começa com `github_pat_`). Ele só aparece uma vez.
+
+> 📅 **Coloque um lembrete na agenda** para uma semana antes de o token vencer. Quando ele vence, o formulário para de disparar os vídeos e você recebe um e-mail avisando. Para resolver, gere outro token e troque no passo 3.4.
+
+### 3.3. Criar o formulário
+
+1. Acesse [forms.google.com](https://forms.google.com) → **Formulário em branco**.
+2. Menu **⋮** (três pontinhos, no alto) → **Apps Script**.
+3. Apague o código que aparece. Abra o [Code.gs](../apps-script/Code.gs) do repositório, clique em **Copy raw file** (ícone de copiar) e cole no editor. Clique em 💾 **Salvar**.
+
+### 3.4. Configurar o script
+
+1. No editor do Apps Script, clique em ⚙️ **Configurações do projeto** (à esquerda).
+2. Lá embaixo, em **Propriedades do script** → **Adicionar propriedade do script**. Crie duas:
+
+   | Propriedade | Valor |
+   |---|---|
+   | `GITHUB_REPO` | `feijaocosta/bible-reading` (dono/repositório) |
+   | `GITHUB_TOKEN_DISPATCH` | o token do passo 3.2 |
+
+3. **Salvar propriedades do script**.
+4. Volte para o editor (ícone `< >` à esquerda). Na barra de cima, escolha a função **setupForm** → ▶ **Executar**.
+5. O Google pede autorização: **Revisar permissões** → escolha sua conta → **Avançado** → **Acessar (não seguro)** → **Permitir**. É esperado, porque o script é seu.
+6. Ao terminar, o formulário já tem as perguntas: nome, livro (os 66), parte da leitura, capítulo e a caixa "Ouvi e validei esta leitura".
+
+### 3.5. Adicionar a pergunta do áudio (à mão)
+
+O Google não deixa scripts criarem perguntas de upload, então esta é manual:
+
+1. Abra o formulário. Clique na pergunta **Capítulo** e depois em ➕ (adicionar pergunta).
+2. Tipo: **Upload de arquivo** → **Continuar**.
+3. Título exatamente: `Áudio`
+4. Ative **Permitir apenas tipos de arquivo específicos** → marque **Áudio**.
+5. **Número máximo de arquivos:** 1. **Tamanho máximo:** 100 MB.
+6. Marque **Obrigatória**.
+7. Confira a ordem: o **Áudio** deve ficar antes de **Conferência**. Arraste se precisar.
+
+### 3.6. Dar acesso aos áudios para a conta de serviço
+
+1. Abra o [Google Drive](https://drive.google.com). Apareceu uma pasta com o nome do formulário e `(File responses)` ou `(Respostas de arquivos)`.
+2. Clique com o botão direito na pasta → **Compartilhar** → cole o **e-mail da conta de serviço** (passo 3.1) → papel **Leitor** → **desmarque** "Notificar pessoas" → **Compartilhar**.
+
+### 3.7. Ligar o envio automático
+
+1. No editor do Apps Script, escolha a função **installTrigger** → ▶ **Executar** (autorize de novo se pedir).
+2. Pronto: a partir de agora, cada resposta enviada dispara o vídeo.
+
+### 3.8. Testar
+
+1. Abra o formulário (botão **Visualizar** 👁) e preencha com uma leitura real.
+2. Em cerca de 1 minuto, aparece uma execução na aba **Actions** do GitHub, com o nome do livro. Em 3 a 5 minutos o vídeo está no YouTube e no catálogo.
+3. Envie o link do formulário (botão **Enviar** → 🔗) só para a coordenadora. Para enviar o áudio, ela precisa estar logada numa conta Google.
+
+### Se algo der errado
+
+- **A dona do formulário recebe um e-mail** quando uma resposta não consegue ser enviada ao GitHub (token vencido, propriedade faltando, capítulo em branco...). Corrija e rode **resendLatestResponse** no editor do Apps Script. Isso reenvia a última resposta, sem duplicar o vídeo.
+- **A execução no Actions ficou vermelha:** veja a mensagem `Error:` no passo que falhou (seção 1). O erro `Share the form's upload folder` significa que faltou o passo 3.6.
+- **Mesma leitura enviada duas vezes:** cada resposta tem um ID próprio, então a mesma resposta nunca gera dois vídeos. Já duas respostas diferentes geram dois vídeos. Nesse caso, apague o vídeo extra no YouTube Studio e a linha correspondente em `data/readings.json`.

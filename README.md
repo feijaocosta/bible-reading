@@ -58,7 +58,7 @@ Work in progress, built in phases:
 
 ## Generating a video on GitHub Actions
 
-See [docs/SETUP.md](docs/SETUP.md). Section 1: run the **Nova leitura** workflow from the Actions tab and download the MP4 from the run page. Section 2: one-time YouTube setup, after which the same workflow can upload the video, add it to the playlist and update `data/readings.json`.
+See [docs/SETUP.md](docs/SETUP.md). Section 1: run the **Nova leitura** workflow from the Actions tab and download the MP4 from the run page. Section 2: one-time YouTube setup, after which the same workflow can upload the video, add it to the playlist and update `data/readings.json`. Section 3: the Google Form; once set up, every form submission publishes a video automatically.
 
 ## Running the pipeline locally
 

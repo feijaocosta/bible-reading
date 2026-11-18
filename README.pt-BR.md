@@ -58,7 +58,7 @@ Em construção, por fases:
 
 ## Gerando um vídeo no GitHub Actions
 
-Veja o [docs/SETUP.pt-BR.md](docs/SETUP.pt-BR.md). Seção 1: rode o workflow **Nova leitura** na aba Actions e baixe o MP4 na página da execução. Seção 2: configuração do YouTube, feita uma vez. Depois dela, o mesmo workflow sobe o vídeo, coloca na playlist e atualiza o `data/readings.json`.
+Veja o [docs/SETUP.pt-BR.md](docs/SETUP.pt-BR.md). Seção 1: rode o workflow **Nova leitura** na aba Actions e baixe o MP4 na página da execução. Seção 2: configuração do YouTube, feita uma vez. Depois dela, o mesmo workflow sobe o vídeo, coloca na playlist e atualiza o `data/readings.json`. Seção 3: o formulário do Google. Depois de configurado, cada envio do formulário publica um vídeo sozinho.
 
 ## Rodando o pipeline localmente
 

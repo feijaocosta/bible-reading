@@ -72,7 +72,7 @@ The output goes to `out/<book>-<chapter>/`:
 
 - `artwork.png`: the 1920x1080 artwork
 - `thumbnail.jpg`: the 1280x720 YouTube thumbnail
-- `output.mp4`: the video, with the audio volume normalized
+- `output.mp4`: the video. The voice gets a subtle room reverb and a soft background pad (composed in code, see `pipeline/template/assets/audio/`) that ducks under the voice, and the volume is normalized
 
 `--chapter` also accepts `introdução` (book introduction) or `encerramento` (book closing); both are optional for each book.
 

@@ -72,7 +72,7 @@ O resultado vai para `out/<livro>-<capítulo>/`:
 
 - `artwork.png`: a arte em 1920x1080
 - `thumbnail.jpg`: a miniatura do YouTube em 1280x720
-- `output.mp4`: o vídeo, com o volume do áudio nivelado
+- `output.mp4`: o vídeo. A voz ganha um reverb sutil de sala e uma trilha de fundo suave (composta por código, veja `pipeline/template/assets/audio/`) que abaixa sozinha quando ela fala, e o volume é nivelado
 
 O `--chapter` também aceita `introdução` ou `encerramento`, que são opcionais em cada livro.
 

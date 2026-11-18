@@ -165,13 +165,12 @@ Nomes dos livros conforme a **NVI** (Nova Versão Internacional). Cada item tem 
 - O mesmo PNG serve de thumbnail (redimensionado para 1280x720).
 
 ### FFmpeg
-```bash
-ffmpeg -y -loop 1 -framerate 1 -i artwork.png -i audio.ogg \
-  -af "loudnorm=I=-16:TP=-1.5:LRA=11" \
-  -c:v libx264 -tune stillimage -pix_fmt yuv420p -r 1 \
-  -c:a aac -b:a 128k -shortest output.mp4
-```
-- O `loudnorm` nivela o volume dos áudios de WhatsApp, que chegam com níveis bem diferentes.
+- Imagem fixa (1 fps, `libx264 -tune stillimage`) + áudio AAC 160k. Implementação em `pipeline/src/video.js`.
+- **Mixagem aprovada (F1):**
+  - voz com `highpass` e um reverb curto e sutil ("sala"), para não soar seca;
+  - **trilha de fundo** `pipeline/template/assets/audio/pad.flac`: pad ambiente de 32 s em loop, composto por código (`pipeline/scripts/generate-pad.js`), sem direitos de terceiros;
+  - a trilha entra 2,5 s antes da voz, sai em fade de 4 s depois dela e abaixa sozinha quando a voz fala (sidechain);
+  - `loudnorm=I=-16:TP=-1.5:LRA=11` no final nivela o volume dos áudios de WhatsApp, que chegam com níveis bem diferentes.
 - Valide a duração com `ffprobe` e falhe se o áudio tiver menos de 10 segundos.
 
 ### YouTube

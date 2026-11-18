@@ -26,5 +26,5 @@ test('addReading writes sorted JSON and refuses duplicates', async (t) => {
 test('catalog entry has only public fields', () => {
   const entry = catalogEntry({ testament: 'NT', book: 'Tiago', bookSlug: 'tiago', bookOrder: 59, part: 'intro', chapter: null,
     narrator: 'Ana', durationSec: 85, video: '/tmp/x.mp4', artwork: '/tmp/a.png' }, { id: 'f1', youtubeId: 'yt1', publishedAt: 'T' });
-  assert.deepEqual(Object.keys(entry), ['id', 'testament', 'book', 'bookSlug', 'bookOrder', 'part', 'chapter', 'narrator', 'youtubeId', 'durationSec', 'publishedAt']);
+  assert.deepEqual(Object.keys(entry), ['id', 'testament', 'book', 'bookSlug', 'bookOrder', 'part', 'chapter', 'narrator', 'youtubeId', 'audioUrl', 'coverUrl', 'durationSec', 'publishedAt']);
 });

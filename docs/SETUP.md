@@ -231,3 +231,37 @@ Google doesn't let scripts create file upload questions, so this one is manual:
 - **The form owner gets an e-mail** when a response can't be sent to GitHub (expired token, missing property, empty chapter...). Fix it and run **resendLatestResponse** in the Apps Script editor. It resends the latest response, without duplicating the video.
 - **The Actions run is red:** read the `Error:` message in the failed step (section 1). `Share the form's upload folder` means step 3.6 is missing.
 - **The same reading sent twice:** each response has its own ID, so the same response never makes two videos. Two different responses do make two videos. In that case, delete the extra one in YouTube Studio and its entry in `data/readings.json`.
+
+## 4. App (GitHub Pages)
+
+The app is published on GitHub Pages, which is free for public repositories. Done once. After that, the app updates itself with every new reading.
+
+### 4.1. Make the repository public
+
+1. In the repository: **Settings** → **General** → scroll to **Danger Zone** → **Change visibility** → **Make public** → confirm.
+2. This exposes no secrets: tokens and keys live in **Secrets**, which are never public.
+
+### 4.2. Turn on GitHub Pages
+
+1. **Settings** → **Pages**.
+2. Under **Build and deployment** → **Source**, choose **GitHub Actions**.
+
+### 4.3. First publication
+
+1. **Actions** tab → **Publicar app** → **Run workflow** → **Run workflow**.
+2. In 1 to 2 minutes the run turns green. The app address shows in the run summary and under **Settings → Pages**. It looks like `https://<your-user>.github.io/bible-reading/`.
+3. From now on, every new reading published through the form also updates the app.
+
+### 4.4. Install on a phone
+
+- **Android (Chrome):** open the address → **⋮** menu → **Install app** (or **Add to Home screen**).
+- **iPhone (Safari):** open the address → **Share** button → **Add to Home Screen**.
+
+### What the app does
+
+- Plays each reading's **own audio** (MP3 stored in GitHub Releases), including with the screen locked.
+- **Download (Baixar):** saves a reading on the device to listen offline. On iPhones, if the app goes unused for weeks, the system may clear downloaded audio. Just download it again.
+- Readings published before the app audio existed show the **YouTube video** instead of the player.
+- Each reading has **its own address**. When shared on WhatsApp, the preview shows the reading's artwork.
+
+> 💡 For the first reading published after this setup, the **Nova leitura** run summary says whether the app's "Download" will work ("download offline ✅"). If it shows ⚠️, the app still plays online as usual, but let us know so we can adjust the download.

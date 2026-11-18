@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Pipeline entry point: audio + reading details -> artwork.png, thumbnail.jpg and output.mp4.
+// Pipeline entry point: audio + reading details -> artwork.png, thumbnail.jpg, output.mp4 (YouTube) and output.mp3 (app).
 //
 // Usage:
 //   node pipeline/src/index.js --audio <file | URL | drive:FILE_ID> --book "Gênesis" --chapter 1 --narrator "Maria" [--testament OT] [--out dir]
@@ -13,7 +13,7 @@ import { isUrl, downloadAudio } from './download.js';
 import { downloadDriveFile } from './drive.js';
 import { loadCatalog, findReading } from './catalog.js';
 import { renderArtwork, ARTWORK_SIZE } from './artwork.js';
-import { assertAudio, createVideo, createThumbnail, probeDuration, probeImageSize } from './video.js';
+import { assertAudio, createMix, createVideo, createMp3, createThumbnail, probeDuration, probeImageSize } from './video.js';
 
 export async function processReading({ audio, outDir, ...details }, log = console.log) {
   const reading = resolveReading(details);
@@ -46,12 +46,19 @@ export async function processReading({ audio, outDir, ...details }, log = consol
   await createThumbnail({ image: artwork, output: thumbnail });
   log(`Thumbnail: ${thumbnail}`);
 
+  const mix = path.join(outDir, 'mix.wav');
+  await createMix({ audio, output: mix });
+
   const video = path.join(outDir, 'output.mp4');
-  await createVideo({ image: artwork, audio, output: video });
+  await createVideo({ image: artwork, mix, output: video });
   const durationSec = Math.round(await probeDuration(video));
   log(`Video: ${video} (${durationSec}s)`);
 
-  const result = { ...reading, artwork, thumbnail, video, durationSec };
+  const mp3 = path.join(outDir, 'output.mp3');
+  await createMp3({ mix, output: mp3, title: `${reading.book}, ${partLabel(reading)}`, artist: reading.narrator });
+  log(`Audio: ${mp3}`);
+
+  const result = { ...reading, artwork, thumbnail, video, mp3, durationSec };
   await writeFile(path.join(outDir, 'reading.json'), JSON.stringify(result, null, 2) + '\n');
   return result;
 }

@@ -41,7 +41,7 @@ Apps Script ──► GitHub API: repository_dispatch "new-reading"
 | `apps-script/` | Google Apps Script that triggers the pipeline on form submit |
 | `data/books.json` | The 66 books (Protestant canon), Portuguese names from the NVI, chapter counts |
 | `data/readings.json` | Catalog of published readings (written by the pipeline) |
-| `site/` | The PWA |
+| `site/` | The app (SvelteKit PWA): listen, download for offline, share |
 | `docs/` | Manual setup guides (Google Cloud, OAuth, secrets, Pages) |
 
 ## Status
@@ -52,7 +52,7 @@ Work in progress, built in phases:
 - [x] F1 — Local pipeline (artwork + MP4) and visual identity
 - [x] F2 — Manual GitHub Actions run
 - [x] F3 — YouTube upload + catalog
-- [ ] F4 — Google Forms input
+- [x] F4 — Google Forms input
 - [ ] F5 — PWA
 - [ ] F6 — Status feedback in the spreadsheet
 
@@ -85,6 +85,18 @@ Book names follow `data/books.json` (NVI) and are case- and accent-insensitive. 
 To tweak the design, open `pipeline/template/artwork.html` in a browser: it shows a sample reading. Fonts are bundled in `pipeline/template/assets/fonts` (SIL Open Font License).
 
 Run the tests with `npm test` inside `pipeline/`.
+
+## The app
+
+The PWA in `site/` lists the readings by testament and book and plays each reading's own MP3. It keeps playing with the screen locked, can download readings for offline listening, and gives every reading a shareable address. To run it locally:
+
+```bash
+cd site
+npm install
+npm run dev
+```
+
+It is published on GitHub Pages by `.github/workflows/deploy-site.yml` (see [docs/SETUP.md](docs/SETUP.md), section 4).
 
 ## Reusing this project
 

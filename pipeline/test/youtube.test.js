@@ -52,6 +52,7 @@ function setup(t) {
   t.after(() => rmSync(dir, { recursive: true, force: true }));
   writeFileSync(path.join(dir, 'reading.json'), JSON.stringify(reading('1')));
   writeFileSync(path.join(dir, 'output.mp4'), 'video');
+  writeFileSync(path.join(dir, 'output.mp3'), 'audio');
   writeFileSync(path.join(dir, 'thumbnail.jpg'), 'jpg');
   const catalogFile = path.join(dir, 'readings.json');
   writeFileSync(catalogFile, '[]');
@@ -59,13 +60,19 @@ function setup(t) {
   return { dir, catalogFile, env };
 }
 const quiet = { log() {}, warn() {} };
+// Fake GitHub Releases that records uploads.
+const fakeReleases = (uploads = []) => ({
+  uploads,
+  async ensureRelease(tag) { return { id: 1, tag, assets: [] }; },
+  async uploadAsset(release, file, name) { uploads.push(name); return `https://github.com/o/r/releases/download/${release.tag}/${name}`; },
+});
 
 test('publish uploads, sets thumbnail, adds to playlist and is idempotent', async (t) => {
   const { dir, catalogFile, env } = setup(t);
   const g = fakeGoogle();
   const client = new YouTubeClient(configFromEnv(env), { fetchImpl: g.fetchImpl });
 
-  const res = await publishReading({ dir, id: 'resp-1' }, { env, client, catalogFile, ...quiet });
+  const res = await publishReading({ dir, id: 'resp-1' }, { env, client, catalogFile, releases: fakeReleases(), ...quiet });
   assert.equal(res.entry.youtubeId, 'VID123');
   assert.deepEqual(res.warnings, []);
   assert.ok(g.calls.some((c) => c.url.includes('/thumbnails/set')));
@@ -74,8 +81,10 @@ test('publish uploads, sets thumbnail, adds to playlist and is idempotent', asyn
   const catalog = JSON.parse(readFileSync(catalogFile, 'utf8'));
   assert.equal(catalog.length, 1);
   assert.equal(catalog[0].part, 'chapter');
+  assert.match(catalog[0].audioUrl, /releases\/download\/audio-tiago\/tiago-1-ana-lucia-[0-9a-f]{6}\.mp3$/);
+  assert.match(catalog[0].coverUrl, /\.jpg$/);
 
-  const again = await publishReading({ dir, id: 'resp-1' }, { env, client, catalogFile, ...quiet });
+  const again = await publishReading({ dir, id: 'resp-1' }, { env, client, catalogFile, releases: fakeReleases(), ...quiet });
   assert.equal(again.skipped, true);
   assert.equal(g.calls.filter((c) => c.url.includes('/upload/youtube/v3/videos')).length, 1, 'uploaded only once');
 });
@@ -83,7 +92,7 @@ test('publish uploads, sets thumbnail, adds to playlist and is idempotent', asyn
 test('after the upload, a playlist failure is only a warning and the catalog is still updated', async (t) => {
   const { dir, catalogFile, env } = setup(t);
   const client = new YouTubeClient(configFromEnv(env), { fetchImpl: fakeGoogle({ failPlaylist: true }).fetchImpl });
-  const res = await publishReading({ dir, id: 'resp-2' }, { env, client, catalogFile, ...quiet });
+  const res = await publishReading({ dir, id: 'resp-2' }, { env, client, catalogFile, releases: fakeReleases(), ...quiet });
   assert.match(res.warnings[0], /Playlist.*playlistNotFound.*YT_PLAYLIST/s);
   assert.equal(JSON.parse(readFileSync(catalogFile, 'utf8')).length, 1);
 });
@@ -91,6 +100,6 @@ test('after the upload, a playlist failure is only a warning and the catalog is 
 test('quota errors fail clearly and leave the catalog untouched', async (t) => {
   const { dir, catalogFile, env } = setup(t);
   const client = new YouTubeClient(configFromEnv(env), { fetchImpl: fakeGoogle({ quota: true }).fetchImpl });
-  await assert.rejects(publishReading({ dir, id: 'resp-3' }, { env, client, catalogFile, ...quiet }), /quotaExceeded.*run it again tomorrow/s);
+  await assert.rejects(publishReading({ dir, id: 'resp-3' }, { env, client, catalogFile, releases: fakeReleases(), ...quiet }), /quotaExceeded.*run it again tomorrow/s);
   assert.equal(JSON.parse(readFileSync(catalogFile, 'utf8')).length, 0);
 });

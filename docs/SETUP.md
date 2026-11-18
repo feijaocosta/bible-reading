@@ -147,3 +147,87 @@ According to YouTube's documentation, videos uploaded by an **unaudited** API pr
 - **Thumbnail not applied:** the channel isn't phone-verified (step 2.1). The video is still published and the summary shows a warning.
 - **`invalid_grant`:** the authorization expired or was revoked. Redo step 2.6 and update the `YT_REFRESH_TOKEN` secret.
 - **Protected `main` branch:** if a protection rule blocks pushes, the catalog commit fails. Allow `github-actions[bot]` or turn the rule off.
+
+## 3. Form (automatic input)
+
+Done once. After this, daily operation is **just filling in the form**: on submit, the video is generated and published by itself within a few minutes.
+
+Use the **same Google account** as the channel and the Google Cloud project.
+
+### 3.1. Service account (lets GitHub read the audio on Drive)
+
+1. In [Google Cloud](https://console.cloud.google.com), with the `biblia-lida-por-elas` project selected: menu ☰ → **APIs & Services** → **Library** → search **Google Drive API** → **Enable**.
+2. Menu ☰ → **IAM & Admin** → **Service accounts** → **Create service account**.
+3. Name: `drive-reader` → **Create and continue** → skip the roles (**Continue**) → **Done**.
+4. Click the new account → **Keys** tab → **Add key** → **Create new key** → **JSON** → **Create**. A `.json` file is downloaded.
+5. Note the service account **e-mail**, which ends with `@biblia-lida-por-elas.iam.gserviceaccount.com`. You need it in step 3.6.
+
+> ⚠️ If you see "Service account key creation is disabled" (organization policy), the account belongs to a Google Workspace that blocks keys. Ask the Workspace admin to lift the `iam.disableServiceAccountKeyCreation` policy for this project.
+
+6. On GitHub: **Settings** → **Secrets and variables** → **Actions** → **New repository secret**. Name: `GOOGLE_SA_JSON`. Value: open the `.json` file in a text editor, copy **all** of it and paste.
+7. **Delete the `.json` file** from your computer after saving the secret.
+
+### 3.2. GitHub token (lets the form notify GitHub)
+
+1. On GitHub, click your picture → **Settings** → **Developer settings** → **Personal access tokens** → **Fine-grained tokens** → **Generate new token**.
+2. Name: `bible-form`. Expiration: the longest available (up to 1 year).
+3. **Repository access:** **Only select repositories** → pick `bible-reading`.
+4. **Permissions** → **Repository permissions** → **Contents** → **Read and write**.
+5. **Generate token** and copy it (starts with `github_pat_`). It is shown only once.
+
+> 📅 **Put a reminder in your calendar** one week before the token expires. When it expires, the form stops triggering videos and you get an e-mail. To fix it, generate a new token and replace it in step 3.4.
+
+### 3.3. Create the form
+
+1. Go to [forms.google.com](https://forms.google.com) → **Blank form**.
+2. **⋮** menu (top) → **Apps Script**.
+3. Delete the code shown. Open [Code.gs](../apps-script/Code.gs) in the repository, click **Copy raw file** and paste it into the editor. Click 💾 **Save**.
+
+### 3.4. Configure the script
+
+1. In the Apps Script editor, click ⚙️ **Project Settings** (left side).
+2. At the bottom, **Script Properties** → **Add script property**. Create two:
+
+   | Property | Value |
+   |---|---|
+   | `GITHUB_REPO` | `feijaocosta/bible-reading` (owner/repository) |
+   | `GITHUB_TOKEN_DISPATCH` | the token from step 3.2 |
+
+3. **Save script properties**.
+4. Back in the editor (`< >` icon on the left), pick the **setupForm** function in the toolbar → ▶ **Run**.
+5. Google asks for authorization: **Review permissions** → pick your account → **Advanced** → **Go to (unsafe)** → **Allow**. That's expected, because the script is yours.
+6. When it finishes, the form has its questions: name, book (all 66), reading part, chapter, and the "Ouvi e validei esta leitura" (I listened and validated this reading) checkbox.
+
+### 3.5. Add the audio question (by hand)
+
+Google doesn't let scripts create file upload questions, so this one is manual:
+
+1. Open the form. Click the **Capítulo** question, then ➕ (add question).
+2. Type: **File upload** → **Continue**.
+3. Title, exactly: `Áudio`
+4. Turn on **Allow only specific file types** → check **Audio**.
+5. **Maximum number of files:** 1. **Maximum file size:** 100 MB.
+6. Check **Required**.
+7. Check the order: **Áudio** must come before **Conferência**. Drag it if needed.
+
+### 3.6. Give the service account access to the audio files
+
+1. Open [Google Drive](https://drive.google.com). There is now a folder named after the form, ending in `(File responses)`.
+2. Right-click it → **Share** → paste the **service account e-mail** (step 3.1) → role **Viewer** → **uncheck** "Notify people" → **Share**.
+
+### 3.7. Turn on automatic sending
+
+1. In the Apps Script editor, pick **installTrigger** → ▶ **Run** (authorize again if asked).
+2. Done: from now on, every submitted response triggers the video.
+
+### 3.8. Test
+
+1. Open the form (👁 **Preview**) and fill it in with a real reading.
+2. In about a minute, a run shows up in GitHub's **Actions** tab with the book name. In 3 to 5 minutes the video is on YouTube and in the catalog.
+3. Send the form link (**Send** → 🔗) to the coordinator only. To upload audio, she needs to be signed in to a Google account.
+
+### If something goes wrong
+
+- **The form owner gets an e-mail** when a response can't be sent to GitHub (expired token, missing property, empty chapter...). Fix it and run **resendLatestResponse** in the Apps Script editor. It resends the latest response, without duplicating the video.
+- **The Actions run is red:** read the `Error:` message in the failed step (section 1). `Share the form's upload folder` means step 3.6 is missing.
+- **The same reading sent twice:** each response has its own ID, so the same response never makes two videos. Two different responses do make two videos. In that case, delete the extra one in YouTube Studio and its entry in `data/readings.json`.

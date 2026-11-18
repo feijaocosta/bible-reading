@@ -94,13 +94,14 @@ Princípios:
 ### Campos do formulário (rótulos em português, para a coordenadora)
 | Campo | Tipo | Obrigatório |
 |---|---|---|
-| Nome de quem narrou | texto curto | sim |
-| Testamento | Antigo / Novo | sim |
+| Nome de quem leu | texto curto | sim |
 | Livro | lista suspensa (66 livros, NVI) | sim |
 | Parte da leitura | lista: Introdução / Capítulo / Encerramento | sim |
 | Capítulo | número (só quando a parte é "Capítulo") | condicional |
 | Áudio | upload de arquivo (.ogg/.opus/.mp3/.m4a) | sim |
-| "Ouvi e validei esta leitura" | caixa de seleção | sim |
+| Conferência: "Ouvi e validei esta leitura" | caixa de seleção | sim |
+
+> **Sem pergunta de testamento:** o livro já define o testamento (evita erro de preenchimento). As perguntas são criadas por `setupForm()` em `apps-script/Code.gs`, que lê `data/books.json` do repositório; só o upload "Áudio" é criado à mão (o Google não permite criar upload por script). Cada envio publica direto, sem etapa de revisão.
 
 > O upload de arquivo no Forms exige que quem responde esteja logado no Google. Tudo bem, porque quem preenche é só a coordenadora.
 
@@ -139,7 +140,6 @@ Nomes dos livros conforme a **NVI** (Nova Versão Internacional). Cada item tem 
   "event_type": "new-reading",
   "client_payload": {
     "id": "...",
-    "testament": "OT",
     "book": "Gênesis",
     "part": "chapter",
     "chapter": 1,

@@ -2,7 +2,7 @@
 // Pipeline entry point: audio + reading details -> artwork.png, thumbnail.jpg and output.mp4.
 //
 // Usage:
-//   node pipeline/src/index.js --audio <file or URL> --book "Gênesis" --chapter 1 --narrator "Maria" [--testament OT] [--out dir]
+//   node pipeline/src/index.js --audio <file | URL | drive:FILE_ID> --book "Gênesis" --chapter 1 --narrator "Maria" [--testament OT] [--out dir]
 //   --chapter also accepts "introdução" (book introduction) and "encerramento" (book closing).
 import { parseArgs } from 'node:util';
 import { mkdir, access, writeFile, appendFile } from 'node:fs/promises';
@@ -10,6 +10,7 @@ import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 import { resolveReading, partLabel, partKey } from './books.js';
 import { isUrl, downloadAudio } from './download.js';
+import { downloadDriveFile } from './drive.js';
 import { loadCatalog, findReading } from './catalog.js';
 import { renderArtwork, ARTWORK_SIZE } from './artwork.js';
 import { assertAudio, createVideo, createThumbnail, probeDuration, probeImageSize } from './video.js';
@@ -20,7 +21,10 @@ export async function processReading({ audio, outDir, ...details }, log = consol
 
   log(`Reading: ${reading.book}, ${partLabel(reading)} (${reading.testament}), narrated by ${reading.narrator}`);
 
-  if (isUrl(audio)) {
+  if (String(audio).startsWith('drive:')) {
+    log('Downloading audio from Google Drive...');
+    audio = await downloadDriveFile(audio.slice('drive:'.length), outDir);
+  } else if (isUrl(audio)) {
     log('Downloading audio...');
     audio = await downloadAudio(audio, outDir);
   } else {
@@ -83,7 +87,7 @@ async function main() {
   });
 
   if (values.help || !values.audio) {
-    console.log('Usage: node pipeline/src/index.js --audio <file|URL> --book "<name>" --chapter <n|introdução|encerramento> --narrator "<name>" [--testament OT|NT] [--out <dir>] [--id <reading id>]');
+    console.log('Usage: node pipeline/src/index.js --audio <file|URL|drive:ID> --book "<name>" --chapter <n|introdução|encerramento> --narrator "<name>" [--testament OT|NT] [--out <dir>] [--id <reading id>]');
     process.exit(values.help ? 0 : 1);
   }
 

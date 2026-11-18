@@ -28,5 +28,20 @@
     "publishedAt": "2026-11-18T13:37:01.880Z",
     "audioUrl": "https://github.com/feijaocosta/bible-reading/releases/download/audio-tiago/tiago-1-daniela-nunes-859eeb.mp3",
     "coverUrl": "https://github.com/feijaocosta/bible-reading/releases/download/audio-tiago/tiago-1-daniela-nunes-859eeb.jpg"
+  },
+  {
+    "id": "2_ABaOnudYxl53tmFAE_ODkftK30QCZe7Vt3rG0uu9c40z8L6itD40jf4k_p1ugvhi-q10s8w",
+    "testament": "NT",
+    "book": "Tiago",
+    "bookSlug": "tiago",
+    "bookOrder": 59,
+    "part": "chapter",
+    "chapter": 2,
+    "narrator": "Rosana Moraes",
+    "youtubeId": "oJ9tGMwOPXs",
+    "audioUrl": "https://github.com/feijaocosta/bible-reading/releases/download/audio-tiago/tiago-2-rosana-moraes-a99bea.mp3",
+    "coverUrl": "https://github.com/feijaocosta/bible-reading/releases/download/audio-tiago/tiago-2-rosana-moraes-a99bea.jpg",
+    "durationSec": 266,
+    "publishedAt": "2026-11-18T15:01:45.101Z"
   }
 ]

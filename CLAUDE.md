@@ -222,7 +222,7 @@ Cada fase termina com algo testável. **Não avance sem a anterior funcionando.*
 - [x] **F1 — Pipeline local + identidade:** propostas de identidade visual; `node pipeline/src/index.js --audio x.ogg --book "Gênesis" --chapter 1 --narrator "Maria" --testament OT` gera `artwork.png` e `output.mp4` localmente, sem Drive nem YouTube.
 - [x] **F2 — Actions manual:** workflow com `workflow_dispatch` (inputs manuais + URL ou caminho do áudio de teste) gera o MP4 e publica como artifact.
 - [x] **F3 — YouTube + catálogo:** upload, playlist, atualização do `readings.json` com commit pelo bot. Idempotente.
-- [ ] **F4 — Entrada pelo Forms:** download do Drive via service account + `apps-script/Code.gs` disparando o `repository_dispatch`.
+- [x] **F4 — Entrada pelo Forms:** download do Drive via service account + `apps-script/Code.gs` disparando o `repository_dispatch`.
 - [ ] **F5 — PWA:** escolha do framework, navegação, player, instalação, deploy no Pages.
 - [ ] **F6 — Retorno para a coordenadora:** o workflow escreve status (`processando` / `publicado` / `erro`) e o link do vídeo de volta na planilha de respostas.
 

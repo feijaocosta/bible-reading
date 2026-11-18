@@ -52,7 +52,7 @@ Em construção, por fases:
 - [x] F1 — Pipeline local (arte + MP4) e identidade visual
 - [x] F2 — Execução manual no GitHub Actions
 - [x] F3 — Upload no YouTube + catálogo
-- [ ] F4 — Entrada pelo Google Forms
+- [x] F4 — Entrada pelo Google Forms
 - [ ] F5 — PWA
 - [ ] F6 — Retorno do status na planilha
 

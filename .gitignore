@@ -1,5 +1,22 @@
+# Dependencies
 node_modules/
+
+# Secrets — never commit
 .env
+.env.*
+!.env.example
+*-service-account*.json
+
+# Generated media and local outputs
+out/
 *.mp4
 *.png.tmp
-out/
+
+# Build output
+site/dist/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

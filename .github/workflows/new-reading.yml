@@ -1,0 +1,89 @@
+# Turns one reading (audio + details) into a video.
+# F2: manual run from the Actions tab; the MP4 is published as a workflow artifact.
+# Later phases add repository_dispatch (from the Google Form), YouTube upload and the catalog commit.
+name: Nova leitura
+
+run-name: "${{ inputs.book }} — ${{ inputs.chapter }} — ${{ inputs.narrator }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      book:
+        description: 'Livro (nome da NVI, ex.: Gênesis, 1 Tessalonicenses)'
+        required: true
+        type: string
+      chapter:
+        description: 'Capítulo (número), ou "introdução" / "encerramento"'
+        required: true
+        type: string
+      narrator:
+        description: 'Nome de quem leu'
+        required: true
+        type: string
+      audio_url:
+        description: 'Link do áudio (link direto, Google Drive "qualquer pessoa com o link" ou Dropbox)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+# One reading at a time, so later phases never race on the catalog commit.
+concurrency:
+  group: new-reading
+  cancel-in-progress: false
+
+jobs:
+  video:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: pipeline
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: pipeline/package-lock.json
+
+      - name: Install FFmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium for the artwork
+        run: npx playwright install --with-deps chromium
+
+      - name: Run tests
+        run: npm test
+
+      # Inputs go through environment variables, never straight into the shell script.
+      - name: Generate video
+        env:
+          BOOK: ${{ inputs.book }}
+          CHAPTER: ${{ inputs.chapter }}
+          NARRATOR: ${{ inputs.narrator }}
+          AUDIO_URL: ${{ inputs.audio_url }}
+        run: |
+          node src/index.js \
+            --audio "$AUDIO_URL" \
+            --book "$BOOK" \
+            --chapter "$CHAPTER" \
+            --narrator "$NARRATOR" \
+            --out "$GITHUB_WORKSPACE/out/reading"
+
+      - name: Publish video as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: leitura-${{ github.run_number }}
+          path: |
+            out/reading/output.mp4
+            out/reading/artwork.png
+            out/reading/thumbnail.jpg
+            out/reading/reading.json
+          if-no-files-found: error
+          retention-days: 30

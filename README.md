@@ -56,6 +56,10 @@ Work in progress, built in phases:
 - [ ] F5 — PWA
 - [ ] F6 — Status feedback in the spreadsheet
 
+## Generating a video on GitHub Actions
+
+See [docs/SETUP.md](docs/SETUP.md), section 1: run the **Nova leitura** workflow from the Actions tab and download the MP4 from the run page.
+
 ## Running the pipeline locally
 
 Requirements: Node.js 20+ and FFmpeg (which includes `ffprobe`).
@@ -65,7 +69,7 @@ cd pipeline
 npm install
 npx playwright install chromium   # headless browser used to render the artwork
 cd ..
-node pipeline/src/index.js --audio reading.ogg --book "Gênesis" --chapter 1 --narrator "Maria" --testament OT
+node pipeline/src/index.js --audio reading.ogg   # or a link (Drive, Dropbox, direct) --book "Gênesis" --chapter 1 --narrator "Maria" --testament OT
 ```
 
 The output goes to `out/<book>-<chapter>/`:

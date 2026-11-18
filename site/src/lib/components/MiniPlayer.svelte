@@ -18,7 +18,8 @@
       <Cover reading={player.current} class="thumb" />
       <span><span class="t serif">{player.current.title}</span><span class="n">{player.current.narrator}</span></span>
     </a>
-    <button class="toggle" onclick={() => player.toggle()} aria-label={player.playing ? t.pause : t.play}>
+    <button class="toggle" class:busy={player.loading} onclick={() => player.toggle()} aria-label={player.loading ? t.loading : player.playing ? t.pause : t.play}>
+      {#if player.loading}<span class="spinner" aria-hidden="true"></span>{/if}
       <Icon name={player.playing ? 'pause' : 'play'} size={26} color="#FFF6EE" />
     </button>
     <span class="bar" style="width:{pct}%"></span>
@@ -32,6 +33,9 @@
   .info > span { display: flex; flex-direction: column; min-width: 0; }
   .t { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .n { font-size: 12px; opacity: .75; }
-  .toggle { width: 44px; height: 44px; display: grid; place-items: center; }
+  .toggle { position: relative; width: 44px; height: 44px; display: grid; place-items: center; }
+  .toggle.busy :global(svg) { opacity: .35; }
+  .spinner { position: absolute; inset: 4px; border-radius: 50%; border: 2.5px solid rgba(255, 246, 238, .3); border-top-color: #FFF6EE; animation: spin .9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
   .bar { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--rose-soft); }
 </style>

@@ -70,12 +70,18 @@
         <div class="times muted"><span>{formatTime(time)}</span><span>-{formatTime(duration - time)}</span></div>
       </div>
       <div class="controls">
+        <button class="speed" onclick={() => player.cycleSpeed()} aria-label={t.speed(player.speed)}>{String(player.speed).replace('.', ',')}x</button>
         <button class="skip" onclick={() => (active ? player.skip(-15) : player.play(r))} aria-label={t.back15}><Icon name="back15" size={38} /><small>15</small></button>
-        <button class="big" onclick={() => player.toggle(r)} aria-label={active && player.playing ? t.pause : t.play}>
+        <button class="big" class:busy={active && player.loading} onclick={() => player.toggle(r)} aria-label={active && player.loading ? t.loading : active && player.playing ? t.pause : t.play}>
+          {#if active && player.loading}<span class="spinner" aria-hidden="true"></span>{/if}
           <Icon name={active && player.playing ? 'pause' : 'play'} size={32} color="#fff" />
         </button>
         <button class="skip" onclick={() => (active ? player.skip(15) : player.play(r))} aria-label={t.forward15}><Icon name="fwd15" size={38} /><small>15</small></button>
+        <span class="speed ghost" aria-hidden="true"></span>
       </div>
+      {#if active && player.failed}
+        <p class="failed" role="alert">{t.playFailed} <button onclick={() => player.retry()}>{t.tryAgain}</button></p>
+      {/if}
     {:else}
       <p class="muted center">{t.videoOnly}</p>
     {/if}
@@ -125,8 +131,15 @@
   input[type='range']::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--rose); margin-top: -6.5px; box-shadow: 0 2px 6px rgba(169, 70, 78, .5); }
   input[type='range']::-moz-range-thumb { width: 18px; height: 18px; border: 0; border-radius: 50%; background: var(--rose); }
   .times { display: flex; justify-content: space-between; font-size: 12px; margin-top: 4px; }
-  .controls { display: flex; justify-content: center; align-items: center; gap: 30px; margin-top: 10px; }
-  .big { width: 78px; height: 78px; border-radius: 50%; background: var(--rose); display: grid; place-items: center; box-shadow: 0 10px 22px rgba(169, 70, 78, .45); }
+  .controls { display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 10px; }
+  .big { position: relative; width: 78px; height: 78px; border-radius: 50%; background: var(--rose); display: grid; place-items: center; box-shadow: 0 10px 22px rgba(169, 70, 78, .45); }
+  .big.busy :global(svg) { opacity: .35; }
+  .spinner { position: absolute; inset: 6px; border-radius: 50%; border: 3px solid rgba(255, 255, 255, .35); border-top-color: #fff; animation: spin .9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .speed { width: 50px; height: 34px; border-radius: 999px; background: var(--card); box-shadow: var(--shadow); font-size: 14px; font-weight: 600; color: var(--rose); }
+  .speed.ghost { visibility: hidden; }
+  .failed { text-align: center; color: var(--rose); font-size: 14px; margin: 14px 0 0; }
+  .failed button { text-decoration: underline; color: inherit; margin-left: 4px; }
   .skip { width: 52px; height: 52px; display: grid; place-items: center; position: relative; }
   .skip small { position: absolute; font-size: 10px; font-weight: 600; margin-top: 3px; }
   .center { text-align: center; }

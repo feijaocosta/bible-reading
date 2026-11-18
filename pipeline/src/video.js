@@ -76,7 +76,10 @@ export async function createMix({ audio, output }) {
 }
 
 // Still image + mix -> MP4 (YouTube).
+// The length is set explicitly from the mix: with a looped still image, "-shortest" ends the video at
+// different points depending on the FFmpeg version (newer runners produced a wrong duration).
 export async function createVideo({ image, mix, output }) {
+  const seconds = await probeDuration(mix);
   await exec('ffmpeg', [
     '-hide_banner', '-loglevel', 'error', '-y',
     '-loop', '1', '-framerate', '1', '-i', image,
@@ -84,7 +87,7 @@ export async function createVideo({ image, mix, output }) {
     '-map', '0:v', '-map', '1:a',
     '-c:v', 'libx264', '-tune', 'stillimage', '-pix_fmt', 'yuv420p', '-r', '1',
     '-c:a', 'aac', '-b:a', '160k',
-    '-shortest', '-movflags', '+faststart',
+    '-t', seconds.toFixed(3), '-movflags', '+faststart',
     output,
   ]);
   return output;

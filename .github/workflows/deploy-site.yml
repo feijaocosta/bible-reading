@@ -43,6 +43,8 @@ jobs:
         env:
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
           SITE_URL: ${{ steps.pages.outputs.base_url }}
+          # Google Analytics 4 (optional): repository variable GA_MEASUREMENT_ID, e.g. G-ABC123XYZ.
+          GA_MEASUREMENT_ID: ${{ vars.GA_MEASUREMENT_ID }}
         run: |
           npm ci
           npm run build

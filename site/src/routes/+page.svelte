@@ -6,6 +6,8 @@
   import Seo from '$lib/components/Seo.svelte';
   import Cover from '$lib/components/Cover.svelte';
   import Icon from '$lib/components/Icon.svelte';
+  import { downloads } from '$lib/offline.svelte.js';
+  import { track } from '$lib/analytics.js';
 
   let { data } = $props();
   let query = $state('');
@@ -23,6 +25,14 @@
     };
   });
   const resume = $derived(player.resume);
+
+  // Search event, sent once the listener stops typing.
+  let searchTimer;
+  $effect(() => {
+    const q = query.trim();
+    clearTimeout(searchTimer);
+    if (q.length >= 3) searchTimer = setTimeout(() => track('search', { search_term: q }), 1200);
+  });
   const isNew = (r) => Date.now() - new Date(r.publishedAt).getTime() < 7 * 864e5;
 </script>
 
@@ -30,6 +40,10 @@
 
 <main class="page">
   <div class="wash" style="height:250px"><img src="{base}/art/hero.svg" alt="" /></div>
+  <a class="saved-link" href="{base}/baixados/" aria-label={t.downloadsLink(downloads.count)}>
+    <Icon name="saved" size={20} />
+    {#if downloads.count}<span class="badge">{downloads.count}</span>{/if}
+  </a>
   <header class="hero">
     <h1 class="logo"><span class="b">Bíblia</span><span class="s">lida por elas</span></h1>
     <p class="tagline serif">{t.tagline}</p>
@@ -108,6 +122,8 @@
 </main>
 
 <style>
+  .saved-link { position: absolute; z-index: 3; top: calc(12px + env(safe-area-inset-top)); left: 14px; width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 250, 244, .85); display: grid; place-items: center; color: var(--ink); box-shadow: 0 3px 10px rgba(90, 50, 40, .15); }
+  .badge { position: absolute; top: -2px; right: -2px; min-width: 19px; height: 19px; padding: 0 5px; border-radius: 999px; background: var(--rose); color: #fff; font-size: 11px; display: grid; place-items: center; }
   .hero { position: relative; z-index: 1; text-align: center; color: #FFFAF4; padding-top: calc(26px + env(safe-area-inset-top)); text-shadow: 0 2px 14px rgba(120, 45, 45, .45); }
   .logo { margin: 0; font-weight: normal; }
   .logo .b { font-family: Dafoe, cursive; font-size: 74px; line-height: .9; display: block; }

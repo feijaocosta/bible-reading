@@ -128,10 +128,21 @@ export function book(slug) {
   return {
     slug, name: b.name, testament: b.testament, total: b.chapters,
     done: chapters.filter((c) => c.available).length,
+    readings: mine.map(card),
     intro: has('introducao') ? `/${slug}/introducao/` : null,
     closing: has('encerramento') ? `/${slug}/encerramento/` : null,
     chapters,
   };
+}
+
+// For autoplay: one reading per part (the latest), in Bible order (intro, chapters, closing).
+export function bookPlaylist(slug) {
+  const latest = new Map();
+  for (const r of load().readings.filter((x) => x.bookSlug === slug)) {
+    const cur = latest.get(r.segment);
+    if (!cur || String(r.publishedAt) > String(cur.publishedAt)) latest.set(r.segment, r);
+  }
+  return [...latest.values()].sort((a, b) => PART_RANK[a.part] - PART_RANK[b.part] || (a.chapter ?? 0) - (b.chapter ?? 0)).map(card);
 }
 
 export function partEntries() {

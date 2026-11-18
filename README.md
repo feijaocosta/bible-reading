@@ -2,6 +2,8 @@
 
 *Leia em português: [README.pt-BR.md](README.pt-BR.md)*
 
+**App:** https://biblia.kingdomapps.net
+
 A zero-cost pipeline that turns Bible chapter readings, recorded as audio by a group of women from a church, into standardized YouTube videos, plus an installable web app (PWA) to listen to them.
 
 ## Why
@@ -53,7 +55,7 @@ Work in progress, built in phases:
 - [x] F2 — Manual GitHub Actions run
 - [x] F3 — YouTube upload + catalog
 - [x] F4 — Google Forms input
-- [ ] F5 — PWA
+- [x] F5 — PWA
 - [ ] F6 — Status feedback in the spreadsheet
 
 ## Generating a video on GitHub Actions
@@ -88,7 +90,7 @@ Run the tests with `npm test` inside `pipeline/`.
 
 ## The app
 
-The PWA in `site/` lists the readings by testament and book and plays each reading's own MP3. It keeps playing with the screen locked, can download readings for offline listening, and gives every reading a shareable address. To run it locally:
+The PWA in `site/` lists the readings by testament and book and plays each reading's own MP3. It keeps playing with the screen locked, can download single readings or whole books for offline listening (managed on a Downloads screen), can autoplay a book in sequence, tells listeners when a new version is available, and gives every reading a shareable address. Google Analytics 4 is wired in and stays off until a measurement id is set. To run it locally:
 
 ```bash
 cd site

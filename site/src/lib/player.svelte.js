@@ -2,12 +2,16 @@
 // - Online: the <audio> element streams the MP3 straight from its host (no service worker in between).
 // - Downloaded: plays from a blob URL of the cached file (works offline, seeking included, on every browser).
 // - Recovers from network hiccups by reloading the source and resuming where it stopped.
+// - Autoplay: when a reading ends, plays the next part of the same book (lock screen next/previous too).
 // - Integrates with the OS media controls (lock screen) through the Media Session API.
 import { browser } from '$app/environment';
+import { base } from '$app/paths';
 import { downloads } from './offline.svelte.js';
+import { track } from './analytics.js';
 
 const CONTINUE_KEY = 'blpe:continue';
 const SPEED_KEY = 'blpe:speed';
+const AUTOPLAY_KEY = 'blpe:autoplay';
 export const SPEEDS = [1, 1.25, 1.5, 0.75];
 const MAX_RETRIES = 3;
 
@@ -28,6 +32,10 @@ class Player {
   duration = $state(0);
   speed = $state(readJson(SPEED_KEY) || 1);
   resume = $state(readJson(CONTINUE_KEY)); // { reading, time } of the last unfinished reading
+  autoplay = $state(readJson(AUTOPLAY_KEY) === true);
+  advanced = $state(null); // { fromId, to } after autoplay moves on (the page follows along)
+  #playlists = new Map(); // bookSlug -> Promise<reading[]>
+  #milestones = new Set();
   el = null;
   #pendingSeek = null; // applied once metadata is loaded (iOS ignores earlier seeks)
   #retries = 0;
@@ -47,8 +55,8 @@ class Player {
     on('pause', () => { this.playing = false; this.#save(true); this.#mediaState(); });
     on('waiting', () => { this.loading = true; });
     on('canplay', () => { this.loading = false; });
-    on('timeupdate', () => { this.time = el.currentTime; this.#save(); this.#mediaPosition(); });
-    on('ended', () => { this.playing = false; this.#clear(); });
+    on('timeupdate', () => { this.time = el.currentTime; this.#save(); this.#mediaPosition(); this.#progress(); });
+    on('ended', () => this.#ended());
     on('error', () => this.#recover());
     on('stalled', () => { if (this.playing) this.loading = true; });
 
@@ -59,6 +67,10 @@ class Player {
       ms.setActionHandler('seekbackward', () => this.skip(-15));
       ms.setActionHandler('seekforward', () => this.skip(15));
       try { ms.setActionHandler('seekto', (d) => this.seek(d.seekTime)); } catch { /* not supported */ }
+      try {
+        ms.setActionHandler('nexttrack', () => this.next());
+        ms.setActionHandler('previoustrack', () => (this.el.currentTime > 5 ? this.seek(0) : this.previous()));
+      } catch { /* not supported */ }
     }
   }
 
@@ -89,6 +101,12 @@ class Player {
       this.el.src = await this.#source(reading);
       this.el.load();
       this.#mediaMetadata(reading);
+      this.#milestones = new Set();
+      downloads.remember(reading);
+      track('audio_play', {
+        reading_id: reading.id, book: reading.book, part: reading.part, narrator: reading.narrator,
+        source: this.el.src.startsWith('blob:') ? 'offline' : 'online',
+      });
     } else if (at != null) {
       this.seek(at);
     }
@@ -148,10 +166,71 @@ class Player {
     this.seek((this.el?.currentTime || 0) + delta);
   }
 
+  toggleAutoplay() {
+    this.autoplay = !this.autoplay;
+    writeJson(AUTOPLAY_KEY, this.autoplay);
+    track('autoplay_toggle', { enabled: this.autoplay });
+  }
+
+  // The book's autoplay order (one reading per part), fetched once per book.
+  #playlist(bookSlug) {
+    if (!this.#playlists.has(bookSlug)) {
+      this.#playlists.set(bookSlug, fetch(`${base}/${bookSlug}/playlist.json`).then((r) => (r.ok ? r.json() : [])).catch(() => []));
+    }
+    return this.#playlists.get(bookSlug);
+  }
+
+  async #neighbour(step) {
+    const cur = this.current;
+    if (!cur) return null;
+    const list = await this.#playlist(cur.bookSlug);
+    const i = list.findIndex((r) => r.part === cur.part && r.chapter === cur.chapter);
+    return i === -1 ? null : list[i + step] ?? null;
+  }
+
+  async next() {
+    const from = this.current;
+    const to = await this.#neighbour(1);
+    if (!to) return false;
+    await this.play(to, { at: 0 });
+    this.advanced = { fromId: from.id, to };
+    return true;
+  }
+
+  async previous() {
+    const from = this.current;
+    const to = await this.#neighbour(-1);
+    if (!to) return false;
+    await this.play(to, { at: 0 });
+    this.advanced = { fromId: from.id, to };
+    return true;
+  }
+
+  async #ended() {
+    this.playing = false;
+    this.#clear();
+    if (this.current) track('audio_complete', { reading_id: this.current.id, book: this.current.book, narrator: this.current.narrator });
+    if (!this.autoplay) return;
+    const from = this.current;
+    if (await this.next()) track('autoplay_next', { from_id: from.id, to_id: this.current.id, book: from.book });
+  }
+
+  #progress() {
+    if (!this.duration || !this.current) return;
+    const pct = (this.time / this.duration) * 100;
+    for (const m of [25, 50, 75]) {
+      if (pct >= m && !this.#milestones.has(m)) {
+        this.#milestones.add(m);
+        track('audio_progress', { reading_id: this.current.id, book: this.current.book, percent: m });
+      }
+    }
+  }
+
   cycleSpeed() {
     this.speed = SPEEDS[(SPEEDS.indexOf(this.speed) + 1) % SPEEDS.length];
     if (this.el) this.el.playbackRate = this.speed;
     writeJson(SPEED_KEY, this.speed);
+    track('speed_change', { speed: this.speed });
   }
 
   #save(force = false) {

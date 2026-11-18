@@ -41,7 +41,7 @@ Apps Script ──► GitHub API: repository_dispatch "new-reading"
 | `apps-script/` | Google Apps Script que dispara o pipeline quando o formulário é enviado |
 | `data/books.json` | Os 66 livros (cânon protestante), nomes conforme a NVI, número de capítulos |
 | `data/readings.json` | Catálogo das leituras publicadas (escrito pelo pipeline) |
-| `site/` | O PWA |
+| `site/` | O app (PWA em SvelteKit): ouvir, baixar para ouvir offline, compartilhar |
 | `docs/` | Guias de configuração manual (Google Cloud, OAuth, secrets, Pages) |
 
 ## Andamento
@@ -85,6 +85,18 @@ Os nomes dos livros seguem o `data/books.json` (NVI) e não diferenciam maiúscu
 Para ajustar o visual, abra `pipeline/template/artwork.html` no navegador: ele mostra uma leitura de exemplo. As fontes ficam em `pipeline/template/assets/fonts` (SIL Open Font License).
 
 Os testes rodam com `npm test` dentro de `pipeline/`.
+
+## O app
+
+O PWA em `site/` lista as leituras por testamento e livro e toca o MP3 próprio de cada leitura. Ele continua tocando com a tela bloqueada, permite baixar as leituras para ouvir sem internet e dá a cada leitura um endereço para compartilhar. Para rodar localmente:
+
+```bash
+cd site
+npm install
+npm run dev
+```
+
+Ele é publicado no GitHub Pages pelo `.github/workflows/deploy-site.yml` (veja o [docs/SETUP.pt-BR.md](docs/SETUP.pt-BR.md), seção 4).
 
 ## Reaproveitando o projeto
 

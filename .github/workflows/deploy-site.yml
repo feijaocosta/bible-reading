@@ -1,0 +1,62 @@
+# Builds the app (SvelteKit, all pages prerendered from data/readings.json) and publishes it on GitHub Pages.
+# Runs on changes to the app or the data, by hand, and after each new reading (called by new-reading.yml,
+# because commits made by the workflow bot do not trigger other workflows).
+name: Publicar app
+
+on:
+  push:
+    branches: [main]
+    paths: ['site/**', 'data/**', 'pipeline/template/assets/**', '.github/workflows/deploy-site.yml']
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # Always the latest default branch, so a call right after a catalog commit sees the new reading.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Build
+        working-directory: site
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+        run: |
+          npm ci
+          npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -28,12 +28,14 @@ Apps Script ──► GitHub API: repository_dispatch "new-reading"
               1. baixa o áudio do Drive (service account)
               2. gera a arte 1920x1080 a partir do template HTML
               3. FFmpeg: arte + áudio ──► MP4
-              4. sobe no YouTube + adiciona na playlist
-              5. atualiza data/readings.json (commit)
-              6. (fallback) guarda o MP4 como artifact
+              4. FFmpeg: mesma mixagem ──► MP3 do app
+              5. MP3 + capa ──► GitHub Releases (release "audio-<livro>")
+              6. sobe no YouTube + adiciona na playlist
+              7. atualiza data/readings.json (commit)
+              8. (fallback) guarda MP4/MP3 como artifact
                         │
-                        ▼
-              GitHub Pages ──► PWA lê data/readings.json
+                        ▼ (chama deploy-site.yml)
+              GitHub Pages ──► PWA (SvelteKit, páginas pré-geradas do catálogo)
 ```
 
 Princípios:
@@ -51,7 +53,8 @@ Princípios:
 | Arte | Template HTML/CSS → PNG via Playwright (Chromium) |
 | Vídeo | FFmpeg |
 | Publicação | YouTube Data API v3 via `fetch` nativo (sem `googleapis`, para manter dependências mínimas) |
-| App | PWA no GitHub Pages. Framework permitido (decidir na F5); build feito no workflow de deploy |
+| App | PWA em SvelteKit (Svelte 5) + adapter-static no GitHub Pages; uma página pré-gerada por livro, capítulo, leitura e leitora |
+| Áudio do app | MP3 96 kbps (mesma mixagem do vídeo) em GitHub Releases |
 
 ## 4. Estrutura do repositório
 
@@ -128,6 +131,8 @@ Nomes dos livros conforme a **NVI** (Nova Versão Internacional). Cada item tem 
     "chapter": 1,
     "narrator": "Maria Silva",
     "youtubeId": "abc123",
+    "audioUrl": "https://github.com/<dono>/<repo>/releases/download/audio-genesis/genesis-1-maria-silva-3f9a1c.mp3",
+    "coverUrl": "https://github.com/<dono>/<repo>/releases/download/audio-genesis/genesis-1-maria-silva-3f9a1c.jpg",
     "durationSec": 312,
     "publishedAt": "2026-11-17T22:00:00Z"
   }
@@ -185,12 +190,16 @@ Nomes dos livros conforme a **NVI** (Nova Versão Internacional). Cada item tem 
 - **Depois que o vídeo subiu**, falhas de miniatura/playlist viram aviso e o catálogo é sempre atualizado, para nunca subir o mesmo vídeo duas vezes.
 - Implementação: `pipeline/src/youtube.js` (cliente), `pipeline/src/publish.js` (upload → miniatura → playlist → catálogo), `pipeline/src/catalog.js`.
 
-### PWA
-- Resultado visual caprichado: pode usar framework se isso ajudar.
-- Navegação: Testamento → Livro → Capítulos disponíveis (com introdução e encerramento, quando houver) → player (embed `youtube-nocookie.com`).
-- Busca simples por livro e por narradora.
-- Instalável (manifest + service worker). Cache só do shell e do JSON, nunca dos vídeos.
-- Mobile first, acessível. Interface em português, com textos centralizados para permitir outros idiomas.
+### PWA (decidido na F5)
+- **SvelteKit + adapter-static**, todas as páginas pré-geradas a partir do catálogo no build (`site/`). Telas aprovadas: Início, Livro, Ouvindo, Leitora, com mini player persistente.
+- **URLs únicas:** `/` · `/<livro>/` · `/<livro>/<capítulo|introducao|encerramento>/` (leitura mais recente) · `/<livro>/<parte>/<leitora>/` (leitura específica; é o link do botão Compartilhar) · `/leitora/<leitora>/`. Cada página tem Open Graph (prévia com a arte no WhatsApp).
+- **Áudio próprio, não o YouTube:** o app toca o MP3 do Releases (toca com a tela bloqueada, Media Session na tela de bloqueio). Leituras antigas sem `audioUrl` mostram o embed `youtube-nocookie.com`. O botão "Ver no YouTube" leva ao vídeo.
+- **Recursos:** busca por livro e leitora; recentes; continuar de onde parou (localStorage); capítulos sem áudio aparecem apagados; anterior/próximo; compartilhar (Web Share ou copiar link); **baixar para ouvir offline** (Cache Storage + service worker com suporte a Range).
+- **Cache:** shell + páginas visitadas (network-first) e, só quando a pessoa toca em "Baixar", o MP3 e a capa. Vídeos nunca.
+- Instalável (manifest + ícones a partir de `brand/avatar.png`). Mobile first, acessível. Textos em `site/src/lib/strings.js`.
+- Recursos visuais do app (aquarelas, fontes) gerados de `pipeline/template/assets` por `site/scripts/prepare-assets.js`.
+- Deploy: `.github/workflows/deploy-site.yml` (push em `site/` ou `data/`, manual, e chamado pelo `new-reading.yml` após cada publicação, porque commits do bot não disparam workflows).
+- O download offline depende de CORS no download do Releases; o `new-reading.yml` verifica e informa no resumo da execução.
 
 ## 7. Secrets e variáveis
 

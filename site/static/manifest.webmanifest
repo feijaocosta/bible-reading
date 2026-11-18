@@ -1,0 +1,17 @@
+{
+  "name": "Bíblia lida por elas",
+  "short_name": "Bíblia lida por elas",
+  "description": "Mulheres lendo a Bíblia em voz alta, capítulo a capítulo.",
+  "lang": "pt-BR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F4E8CF",
+  "theme_color": "#C98E83",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

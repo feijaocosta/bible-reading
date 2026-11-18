@@ -1,8 +1,10 @@
 #!/usr/bin/env node
-// Publishes a generated reading: YouTube upload, thumbnail, playlist, then the catalog entry.
+// Publishes a generated reading: app audio + cover (GitHub Releases), YouTube upload, thumbnail, playlist,
+// then the catalog entry.
 //
 // Usage: node pipeline/src/publish.js --dir out/reading --id <reading id>
-// Needs YT_CLIENT_ID, YT_CLIENT_SECRET, YT_REFRESH_TOKEN (and optionally YT_PRIVACY, YT_PLAYLIST_OT, YT_PLAYLIST_NT).
+// Needs YT_CLIENT_ID, YT_CLIENT_SECRET, YT_REFRESH_TOKEN (and optionally YT_PRIVACY, YT_PLAYLIST_OT, YT_PLAYLIST_NT),
+// plus GITHUB_TOKEN and GITHUB_REPOSITORY (set automatically in GitHub Actions) for the app audio.
 // Locally: node --env-file=.env pipeline/src/publish.js ...
 import { parseArgs } from 'node:util';
 import { readFile, appendFile } from 'node:fs/promises';
@@ -11,8 +13,9 @@ import path from 'node:path';
 import { YouTubeClient, configFromEnv, videoMetadata } from './youtube.js';
 import { loadCatalog, findReading, catalogEntry, addReading, CATALOG_PATH } from './catalog.js';
 import { partLabel } from './books.js';
+import { GitHubReleases, storeAppMedia } from './releases.js';
 
-export async function publishReading({ dir, id }, { env = process.env, log = console.log, warn = console.warn, client, catalogFile = CATALOG_PATH } = {}) {
+export async function publishReading({ dir, id }, { env = process.env, log = console.log, warn = console.warn, client, releases, catalogFile = CATALOG_PATH } = {}) {
   if (!id) throw new Error('A reading id is required (--id).');
   const reading = JSON.parse(await readFile(path.join(dir, 'reading.json'), 'utf8'));
 
@@ -25,6 +28,12 @@ export async function publishReading({ dir, id }, { env = process.env, log = con
   const config = configFromEnv(env);
   const yt = client ?? new YouTubeClient(config);
   const metadata = videoMetadata(reading, config.privacy);
+
+  // App audio first: if this fails nothing is published yet, so the run can simply be repeated.
+  log('Storing the app audio and cover (GitHub Releases)...');
+  const store = releases ?? new GitHubReleases({ token: env.GITHUB_TOKEN, repository: env.GITHUB_REPOSITORY });
+  const media = await storeAppMedia(reading, id, { mp3: path.join(dir, 'output.mp3'), cover: path.join(dir, 'thumbnail.jpg') }, store);
+  log(`Audio: ${media.audioUrl}`);
 
   log(`Uploading "${metadata.snippet.title}" (${config.privacy})...`);
   const video = await yt.uploadVideo(path.join(dir, 'output.mp4'), metadata);
@@ -50,7 +59,7 @@ export async function publishReading({ dir, id }, { env = process.env, log = con
   if (playlistId) await soft('Playlist', () => yt.addToPlaylist(playlistId, youtubeId));
   else { const msg = `No playlist configured for ${reading.testament} (YT_PLAYLIST_${reading.testament}).`; warnings.push(msg); warn(`Warning: ${msg}`); }
 
-  const entry = catalogEntry(reading, { id, youtubeId });
+  const entry = catalogEntry(reading, { id, youtubeId, ...media });
   await addReading(entry, catalogFile);
   log(`Catalog updated: ${reading.book}, ${partLabel(reading)}`);
 
@@ -66,7 +75,7 @@ async function main() {
   const result = await publishReading(values);
 
   if (process.env.GITHUB_OUTPUT) {
-    await appendFile(process.env.GITHUB_OUTPUT, `published=${result.skipped ? 'false' : 'true'}\nyoutube_id=${result.entry.youtubeId}\n`);
+    await appendFile(process.env.GITHUB_OUTPUT, `published=${result.skipped ? 'false' : 'true'}\nyoutube_id=${result.entry.youtubeId}\naudio_url=${result.entry.audioUrl ?? ''}\n`);
   }
   if (process.env.GITHUB_STEP_SUMMARY) {
     const lines = result.skipped

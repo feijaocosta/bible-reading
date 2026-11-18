@@ -1,0 +1,7 @@
+node_modules/
+.svelte-kit/
+build/
+# Generated from pipeline/template/assets by scripts/prepare-assets.js
+src/lib/assets/fonts/
+static/art/
+static/sample/

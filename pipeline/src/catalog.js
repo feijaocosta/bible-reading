@@ -31,7 +31,7 @@ export function sortCatalog(catalog) {
 }
 
 // The public entry: only what the app needs (no local file paths).
-export function catalogEntry(reading, { id, youtubeId, publishedAt = new Date().toISOString() }) {
+export function catalogEntry(reading, { id, youtubeId, audioUrl = null, coverUrl = null, publishedAt = new Date().toISOString() }) {
   return {
     id,
     testament: reading.testament,
@@ -42,6 +42,8 @@ export function catalogEntry(reading, { id, youtubeId, publishedAt = new Date().
     chapter: reading.chapter,
     narrator: reading.narrator,
     youtubeId,
+    audioUrl,
+    coverUrl,
     durationSec: reading.durationSec,
     publishedAt,
   };

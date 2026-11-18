@@ -42,36 +42,61 @@ export const BACKGROUND_MUSIC = fileURLToPath(new URL('../template/assets/audio/
 export const MUSIC_LEAD_IN_SECONDS = 2.5; // music alone before the voice starts
 export const MUSIC_TAIL_SECONDS = 4; // music fading out after the voice ends
 
-// Audio mix:
+// Audio mix (done once; the MP4 and the MP3 are encoded from it):
 //  - voice: high-pass to remove rumble + a short, subtle "room" reverb so phone recordings don't sound dry;
 //  - music: looped pad, softened and reverberated, faded in/out, ducked by the voice (sidechain compression);
 //  - final loudnorm evens out the very different levels of WhatsApp recordings.
+// Inputs: [0:a] voice, [1:a] looped background music.
 export function audioFilter(totalSeconds) {
   const lead = MUSIC_LEAD_IN_SECONDS, fadeOutAt = (totalSeconds - MUSIC_TAIL_SECONDS).toFixed(3), total = totalSeconds.toFixed(3);
   return [
-    `[1:a]highpass=f=80,aecho=1.0:0.85:23|41|67:0.20|0.13|0.07,aformat=channel_layouts=stereo,`
+    `[0:a]highpass=f=80,aecho=1.0:0.85:23|41|67:0.20|0.13|0.07,aformat=channel_layouts=stereo,`
       + `adelay=${lead}s:all=1,apad=whole_dur=${total},asplit=2[voice][sidechain]`,
-    `[2:a]atrim=0:${total},lowpass=f=2600,aecho=0.8:0.7:90|170|260:0.35|0.25|0.15,volume=0.22,`
+    `[1:a]atrim=0:${total},lowpass=f=2600,aecho=0.8:0.7:90|170|260:0.35|0.25|0.15,volume=0.22,`
       + `afade=t=in:st=0:d=${lead},afade=t=out:st=${fadeOutAt}:d=${MUSIC_TAIL_SECONDS}[music]`,
     `[music][sidechain]sidechaincompress=threshold=0.02:ratio=5:attack=120:release=1200[ducked]`,
     `[voice][ducked]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-16:TP=-1.5:LRA=11[mix]`,
   ].join(';');
 }
 
-// Still image + voice + background music -> MP4.
-export async function createVideo({ image, audio, output }) {
+// Voice + background music -> lossless stereo mix (WAV, 48 kHz).
+export async function createMix({ audio, output }) {
   const voiceSeconds = await probeDuration(audio);
   const totalSeconds = voiceSeconds + MUSIC_LEAD_IN_SECONDS + MUSIC_TAIL_SECONDS;
   await exec('ffmpeg', [
     '-hide_banner', '-loglevel', 'error', '-y',
-    '-loop', '1', '-framerate', '1', '-i', image,
     '-i', audio,
     '-stream_loop', '-1', '-i', BACKGROUND_MUSIC,
     '-filter_complex', audioFilter(totalSeconds),
-    '-map', '0:v', '-map', '[mix]',
+    '-map', '[mix]', '-ar', '48000', '-c:a', 'pcm_s16le',
+    '-t', totalSeconds.toFixed(3),
+    output,
+  ]);
+  return output;
+}
+
+// Still image + mix -> MP4 (YouTube).
+export async function createVideo({ image, mix, output }) {
+  await exec('ffmpeg', [
+    '-hide_banner', '-loglevel', 'error', '-y',
+    '-loop', '1', '-framerate', '1', '-i', image,
+    '-i', mix,
+    '-map', '0:v', '-map', '1:a',
     '-c:v', 'libx264', '-tune', 'stillimage', '-pix_fmt', 'yuv420p', '-r', '1',
-    '-c:a', 'aac', '-b:a', '160k', '-ar', '48000',
-    '-t', totalSeconds.toFixed(3), '-movflags', '+faststart',
+    '-c:a', 'aac', '-b:a', '160k',
+    '-shortest', '-movflags', '+faststart',
+    output,
+  ]);
+  return output;
+}
+
+// Mix -> MP3 for the app (small enough for mobile data and offline downloads).
+export async function createMp3({ mix, output, title, artist }) {
+  await exec('ffmpeg', [
+    '-hide_banner', '-loglevel', 'error', '-y',
+    '-i', mix,
+    '-c:a', 'libmp3lame', '-b:a', '96k',
+    '-metadata', `title=${title ?? ''}`, '-metadata', `artist=${artist ?? ''}`, '-metadata', 'album=Bíblia lida por elas',
     output,
   ]);
   return output;

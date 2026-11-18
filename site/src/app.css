@@ -1,0 +1,62 @@
+/* Bíblia lida por elas — visual identity (see CLAUDE.md, "Identidade visual"). */
+@font-face { font-family: Dafoe; src: url('./lib/assets/fonts/MrDafoe-Regular.ttf'); font-display: swap; }
+@font-face { font-family: Josefin; src: url('./lib/assets/fonts/JosefinSans-Bold.ttf'); font-weight: 700; font-display: swap; }
+@font-face { font-family: Pinyon; src: url('./lib/assets/fonts/PinyonScript-Regular.ttf'); font-display: swap; }
+@font-face { font-family: Fraunces; src: url('./lib/assets/fonts/Fraunces-Italic.woff2') format('woff2'); font-weight: 100 900; font-style: italic; font-display: swap; }
+@font-face { font-family: Jost; src: url('./lib/assets/fonts/Jost-Regular.ttf'); font-display: swap; }
+
+:root {
+  --ink: #43302C;
+  --rose: #A9464E;
+  --rose-soft: #D7777B;
+  --paper: #F4E8CF;
+  --card: #FBF5EA;
+  --muted: #7C655A;
+  --sage: #5F7B5A;
+  --line: rgba(126, 152, 176, .28);
+  --shadow: 0 6px 18px rgba(90, 50, 40, .12);
+  --radius: 18px;
+  --gutter: 20px;
+  --player-h: 0px;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Jost, system-ui, sans-serif;
+  color: var(--ink);
+  background-color: var(--paper);
+  background-image: repeating-linear-gradient(to bottom, transparent 0 33px, var(--line) 33px 34px),
+    radial-gradient(ellipse at 60% 30%, #F8EED8, #EAD6AE 95%);
+  background-attachment: fixed;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; padding: 0; }
+img { display: block; max-width: 100%; }
+:focus-visible { outline: 3px solid var(--rose); outline-offset: 3px; border-radius: 6px; }
+
+.page { max-width: 560px; margin: 0 auto; padding-bottom: calc(40px + var(--player-h) + env(safe-area-inset-bottom)); position: relative; }
+.section { padding: 0 var(--gutter); position: relative; }
+.label { font-size: 12px; letter-spacing: .28em; text-transform: uppercase; color: var(--rose); margin: 26px 0 12px; }
+.script { font-family: Pinyon, cursive; color: var(--rose); font-weight: normal; }
+.serif { font-family: Fraunces, Georgia, serif; font-style: italic; }
+.muted { color: var(--muted); }
+.card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Watercolor header shared by the pages */
+.wash { position: absolute; inset: 0 0 auto 0; z-index: 0; pointer-events: none; }
+.wash img { width: 100%; height: 100%; object-fit: cover; }
+
+.icon-btn { width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 250, 244, .88); display: grid; place-items: center; box-shadow: 0 3px 10px rgba(90, 50, 40, .15); }
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: calc(10px + env(safe-area-inset-top)) 16px 6px; position: relative; z-index: 3; }
+
+.progress { height: 4px; background: rgba(169, 70, 78, .18); border-radius: 4px; overflow: hidden; }
+.progress > i { display: block; height: 100%; background: var(--rose); border-radius: 4px; }
+
+.toast { position: fixed; left: 50%; bottom: calc(24px + var(--player-h) + env(safe-area-inset-bottom)); transform: translateX(-50%); background: #4A3230; color: #FFF6EE; padding: 10px 18px; border-radius: 999px; font-size: 14px; z-index: 50; box-shadow: 0 8px 20px rgba(0, 0, 0, .25); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

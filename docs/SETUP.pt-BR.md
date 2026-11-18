@@ -231,3 +231,37 @@ O Google não deixa scripts criarem perguntas de upload, então esta é manual:
 - **A dona do formulário recebe um e-mail** quando uma resposta não consegue ser enviada ao GitHub (token vencido, propriedade faltando, capítulo em branco...). Corrija e rode **resendLatestResponse** no editor do Apps Script. Isso reenvia a última resposta, sem duplicar o vídeo.
 - **A execução no Actions ficou vermelha:** veja a mensagem `Error:` no passo que falhou (seção 1). O erro `Share the form's upload folder` significa que faltou o passo 3.6.
 - **Mesma leitura enviada duas vezes:** cada resposta tem um ID próprio, então a mesma resposta nunca gera dois vídeos. Já duas respostas diferentes geram dois vídeos. Nesse caso, apague o vídeo extra no YouTube Studio e a linha correspondente em `data/readings.json`.
+
+## 4. App (GitHub Pages)
+
+O app é publicado no GitHub Pages, gratuito para repositórios públicos. Feito uma vez só. Depois disso, o app se atualiza sozinho a cada leitura nova.
+
+### 4.1. Deixar o repositório público
+
+1. No repositório: **Settings** → **General** → role até **Danger Zone** → **Change visibility** → **Make public** → confirme.
+2. Isso não expõe nenhum segredo: tokens e chaves ficam em **Secrets**, que nunca aparecem publicamente.
+
+### 4.2. Ligar o GitHub Pages
+
+1. **Settings** → **Pages**.
+2. Em **Build and deployment** → **Source**, escolha **GitHub Actions**.
+
+### 4.3. Primeira publicação
+
+1. Aba **Actions** → **Publicar app** → **Run workflow** → **Run workflow**.
+2. Em 1 a 2 minutos, a execução fica verde. O endereço do app aparece no resumo da execução e em **Settings → Pages**. Ele tem o formato `https://<seu-usuário>.github.io/bible-reading/`.
+3. A partir daqui, cada leitura nova publicada pelo formulário também atualiza o app.
+
+### 4.4. Instalar no celular
+
+- **Android (Chrome):** abra o endereço → menu **⋮** → **Instalar app** (ou **Adicionar à tela inicial**).
+- **iPhone (Safari):** abra o endereço → botão **Compartilhar** → **Adicionar à Tela de Início**.
+
+### O que o app faz
+
+- Toca o **áudio próprio** de cada leitura (MP3 guardado no GitHub Releases), inclusive com a tela bloqueada.
+- **Baixar:** guarda a leitura no aparelho para ouvir sem internet. No iPhone, se o app ficar semanas sem uso, o sistema pode apagar os áudios baixados. Basta baixar de novo.
+- Leituras publicadas antes do áudio próprio existir aparecem com o **vídeo do YouTube** no lugar do player.
+- Cada leitura tem um **endereço próprio**. Ao compartilhar no WhatsApp, a prévia mostra a arte da leitura.
+
+> 💡 Na primeira leitura publicada depois desta configuração, o resumo da execução **Nova leitura** mostra se o "Baixar" do app vai funcionar ("download offline ✅"). Se aparecer ⚠️, o app continua tocando normalmente pela internet, mas avise para ajustarmos o download.

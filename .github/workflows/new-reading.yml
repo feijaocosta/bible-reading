@@ -37,7 +37,7 @@ on:
         type: string
 
 permissions:
-  contents: write # commit data/readings.json
+  contents: write # commit data/readings.json and store the app audio in GitHub Releases
 
 # One reading at a time, so two runs never race on the catalog commit.
 concurrency:
@@ -48,6 +48,8 @@ jobs:
   video:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    outputs:
+      published: ${{ steps.publish.outputs.published }}
     defaults:
       run:
         working-directory: pipeline
@@ -102,6 +104,7 @@ jobs:
           name: leitura-${{ github.run_number }}
           path: |
             out/reading/output.mp4
+            out/reading/output.mp3
             out/reading/artwork.png
             out/reading/thumbnail.jpg
             out/reading/reading.json
@@ -119,6 +122,7 @@ jobs:
           YT_PRIVACY: ${{ vars.YT_PRIVACY }}
           YT_PLAYLIST_OT: ${{ vars.YT_PLAYLIST_OT }}
           YT_PLAYLIST_NT: ${{ vars.YT_PLAYLIST_NT }}
+          GITHUB_TOKEN: ${{ github.token }} # app audio goes to GitHub Releases
         run: node src/publish.js --dir "$GITHUB_WORKSPACE/out/reading" --id "$READING_ID"
 
       - name: Commit catalog
@@ -138,3 +142,34 @@ jobs:
           done
           echo "::error::Could not save the catalog. The video is on YouTube: https://youtu.be/$YOUTUBE_ID — add it to data/readings.json by hand before re-running."
           exit 1
+
+      # The app's "download for offline" needs the audio host to allow cross-origin reads (CORS).
+      # This only reports what GitHub returns; it never fails the run.
+      - name: Check audio download for the app (CORS)
+        if: steps.publish.outputs.published == 'true'
+        continue-on-error: true
+        working-directory: .
+        env:
+          AUDIO_URL: ${{ steps.publish.outputs.audio_url }}
+        run: |
+          headers=$(curl -sSIL -H "Origin: https://example.org" "$AUDIO_URL" | tr -d '\r')
+          echo "$headers" | grep -iE '^(HTTP/|location:|access-control-allow-origin:|content-type:|accept-ranges:)'
+          # The browser needs the CORS header on every hop (GitHub redirects to another host).
+          hops=$(echo "$headers" | grep -ciE '^HTTP/')
+          allowed=$(echo "$headers" | grep -ciE '^access-control-allow-origin:')
+          echo "hops=$hops allowed=$allowed"
+          if [ "$allowed" -ge "$hops" ]; then
+            echo "### Áudio do app: download offline ✅ (CORS liberado)" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "### Áudio do app: download offline ⚠️ (sem CORS; o app só toca online)" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  # Rebuild the app so the new reading shows up there too.
+  site:
+    needs: video
+    if: needs.video.outputs.published == 'true'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/deploy-site.yml

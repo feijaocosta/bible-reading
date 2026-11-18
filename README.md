@@ -2,6 +2,8 @@
 
 *Leia em português: [README.pt-BR.md](README.pt-BR.md)*
 
+**App:** https://biblia.kingdomapps.net
+
 A zero-cost pipeline that turns Bible chapter readings, recorded as audio by a group of women from a church, into standardized YouTube videos, plus an installable web app (PWA) to listen to them.
 
 ## Why

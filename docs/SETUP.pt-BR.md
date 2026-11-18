@@ -307,7 +307,7 @@ O app já envia eventos para o Google Analytics 4. Enquanto não houver um ID co
 
 ## 6. Domínio próprio
 
-Para o app ficar num endereço como `biblia.kingdomapps.net` em vez de `feijaocosta.github.io/bible-reading`:
+Para o app ficar em `biblia.kingdomapps.net` em vez de `feijaocosta.github.io/bible-reading` (quem reaproveitar o projeto usa o próprio domínio no lugar):
 
 1. No painel do seu domínio (onde o `kingdomapps.net` foi registrado ou onde está o DNS, por exemplo Cloudflare, Registro.br, GoDaddy), crie um registro **CNAME**:
 

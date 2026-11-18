@@ -2,6 +2,8 @@
 
 *Read in English: [README.md](README.md)*
 
+**App:** https://biblia.kingdomapps.net
+
 Um fluxo de custo zero que transforma leituras de capítulos da Bíblia, gravadas em áudio por um grupo de mulheres da igreja, em vídeos padronizados no YouTube. Inclui também um app instalável (PWA) para ouvir as leituras.
 
 ## Por quê

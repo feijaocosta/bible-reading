@@ -199,7 +199,7 @@ Nomes dos livros conforme a **NVI** (Nova Versão Internacional). Cada item tem 
 - **Cache:** o service worker guarda só o shell e as páginas visitadas (network-first) e **nunca intercepta áudio** (o Safari recusa mídia devolvida por service worker após redirect). O MP3 só é guardado quando a pessoa toca em "Baixar". Vídeos nunca.
 - Instalável (manifest + ícones a partir de `brand/avatar.png`). Mobile first, acessível. Textos em `site/src/lib/strings.js`.
 - Recursos visuais do app (aquarelas, fontes) gerados de `pipeline/template/assets` por `site/scripts/prepare-assets.js`.
-- **Domínio próprio:** previsto um subdomínio de `kingdomapps.net` (SETUP §6). O app se adapta sozinho (base path e URLs vêm do `configure-pages`).
+- **Domínio próprio:** `https://biblia.kingdomapps.net` (CNAME → `feijaocosta.github.io`; SETUP §6). O app se adapta sozinho (base path e URLs vêm do `configure-pages`).
 - Deploy: `.github/workflows/deploy-site.yml` (push em `site/` ou `data/`, manual, e chamado pelo `new-reading.yml` após cada publicação, porque commits do bot não disparam workflows).
 - **Por que não tocar direto do Releases:** o GitHub entrega os assets como `application/octet-stream` + `attachment` e sem CORS; o Safari (todo navegador no iPhone) não toca e o download offline não funciona. Servido pelo Pages: `audio/mpeg`, Range e mesma origem.
 - **Limite:** site do Pages até 1 GB (~500 leituras de 4 min a 64 kbps). O deploy mostra o uso e avisa acima de 85%; aí mover os áudios para outro host (ex.: Internet Archive) — perguntar antes de criar a conta.

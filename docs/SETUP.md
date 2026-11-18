@@ -307,7 +307,7 @@ The app already sends events to Google Analytics 4. Until an id is configured, *
 
 ## 6. Custom domain
 
-To serve the app at an address like `biblia.kingdomapps.net` instead of `feijaocosta.github.io/bible-reading`:
+To serve the app at `biblia.kingdomapps.net` instead of `feijaocosta.github.io/bible-reading` (if you reuse this project, use your own domain instead):
 
 1. In your domain's DNS panel (wherever `kingdomapps.net` is managed: Cloudflare, Registro.br, GoDaddy...), create a **CNAME** record:
 

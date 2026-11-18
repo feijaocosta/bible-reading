@@ -257,6 +257,15 @@ O app é publicado no GitHub Pages, gratuito para repositórios públicos. Feito
 - **Android (Chrome):** abra o endereço → menu **⋮** → **Instalar app** (ou **Adicionar à tela inicial**).
 - **iPhone (Safari):** abra o endereço → botão **Compartilhar** → **Adicionar à Tela de Início**.
 
+### 4.5. Leituras antigas sem áudio no app
+
+Leituras publicadas antes do áudio próprio do app existir aparecem no app com o vídeo do YouTube. Para gerar o áudio delas:
+
+1. Abra o [data/readings.json](../data/readings.json) e copie o `id` da leitura (o texto entre aspas depois de `"id":`).
+2. Pegue o link do áudio original. Se ele foi enviado pelo formulário, está na pasta de respostas do formulário no Drive: clique com o botão direito no arquivo → **Compartilhar** → **Copiar link**. Não precisa abrir o compartilhamento, porque a conta de serviço já tem acesso à pasta.
+3. Aba **Actions** → **Gerar áudio do app** → **Run workflow**. Cole o ID e o link → **Run workflow**.
+4. Em uns 3 minutos, a leitura passa a tocar com o áudio próprio no app. O YouTube não é alterado.
+
 ### O que o app faz
 
 - Toca o **áudio próprio** de cada leitura (MP3 guardado no GitHub Releases), inclusive com a tela bloqueada.

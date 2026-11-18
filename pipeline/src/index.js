@@ -9,7 +9,7 @@ import { mkdir, access, writeFile, appendFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 import { resolveReading, partLabel, partKey } from './books.js';
-import { isUrl, downloadAudio } from './download.js';
+import { isUrl, downloadAudio, driveIdFromUrl } from './download.js';
 import { downloadDriveFile } from './drive.js';
 import { loadCatalog, findReading } from './catalog.js';
 import { renderArtwork, ARTWORK_SIZE } from './artwork.js';
@@ -26,7 +26,7 @@ export async function processReading({ audio, outDir, ...details }, log = consol
     audio = await downloadDriveFile(audio.slice('drive:'.length), outDir);
   } else if (isUrl(audio)) {
     log('Downloading audio...');
-    audio = await downloadAudio(audio, outDir);
+    audio = await downloadFromLink(audio, outDir, log);
   } else {
     await access(audio).catch(() => { throw new Error(`Audio file not found: ${audio}`); });
   }
@@ -61,6 +61,20 @@ export async function processReading({ audio, outDir, ...details }, log = consol
   const result = { ...reading, artwork, thumbnail, video, mp3, durationSec };
   await writeFile(path.join(outDir, 'reading.json'), JSON.stringify(result, null, 2) + '\n');
   return result;
+}
+
+// Drive links are read with the service account when available (no public sharing needed),
+// falling back to a public download.
+async function downloadFromLink(link, outDir, log) {
+  const driveId = driveIdFromUrl(link);
+  if (driveId && process.env.GOOGLE_SA_JSON) {
+    try {
+      return await downloadDriveFile(driveId, outDir);
+    } catch (err) {
+      log(`Service account could not read the Drive file (${err.message.split('\n')[0]}); trying the public link.`);
+    }
+  }
+  return downloadAudio(link, outDir);
 }
 
 // Markdown summary shown on the GitHub Actions run page.

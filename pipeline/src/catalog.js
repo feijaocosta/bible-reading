@@ -49,6 +49,16 @@ export function catalogEntry(reading, { id, youtubeId, audioUrl = null, coverUrl
   };
 }
 
+// Changes some fields of an existing reading (e.g. adding the app audio to an older one).
+export async function updateReading(id, patch, file = CATALOG_PATH) {
+  const catalog = await loadCatalog(file);
+  const entry = findReading(catalog, id);
+  if (!entry) throw new Error(`Reading ${id} is not in the catalog.`);
+  Object.assign(entry, patch);
+  await writeFile(file, JSON.stringify(sortCatalog(catalog), null, 2) + '\n');
+  return entry;
+}
+
 export async function addReading(entry, file = CATALOG_PATH) {
   const catalog = await loadCatalog(file);
   if (findReading(catalog, entry.id)) throw new Error(`Reading ${entry.id} is already in the catalog.`);

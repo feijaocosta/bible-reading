@@ -68,6 +68,7 @@ Princípios:
 │   └── SETUP.pt-BR.md        # passo a passo manual (português)
 ├── .github/workflows/
 │   ├── new-reading.yml       # repository_dispatch + workflow_dispatch
+│   ├── app-audio.yml         # gera o MP3 do app para uma leitura já publicada (sem YouTube)
 │   └── deploy-site.yml       # build do PWA + deploy no Pages
 ├── pipeline/
 │   ├── package.json

@@ -14,6 +14,17 @@ export function isUrl(value) {
   return /^https?:\/\//i.test(String(value));
 }
 
+// The file id of a Google Drive link, or null for any other link.
+export function driveIdFromUrl(input) {
+  try {
+    const url = new URL(input);
+    if (!/(^|\.)drive\.google\.com$/.test(url.hostname)) return null;
+    return url.pathname.match(/\/file\/d\/([^/]+)/)?.[1] ?? url.searchParams.get('id');
+  } catch {
+    return null;
+  }
+}
+
 // Turns share links into direct-download links.
 export function toDirectUrl(input) {
   const url = new URL(input);

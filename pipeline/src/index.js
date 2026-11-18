@@ -10,6 +10,7 @@ import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 import { resolveReading, partLabel, partKey } from './books.js';
 import { isUrl, downloadAudio } from './download.js';
+import { loadCatalog, findReading } from './catalog.js';
 import { renderArtwork, ARTWORK_SIZE } from './artwork.js';
 import { assertAudio, createVideo, createThumbnail, probeDuration, probeImageSize } from './video.js';
 
@@ -76,13 +77,24 @@ async function main() {
       narrator: { type: 'string' },
       testament: { type: 'string' },
       out: { type: 'string' },
+      id: { type: 'string' },
       help: { type: 'boolean', short: 'h' },
     },
   });
 
   if (values.help || !values.audio) {
-    console.log('Usage: node pipeline/src/index.js --audio <file|URL> --book "<name>" --chapter <n|introdução|encerramento> --narrator "<name>" [--testament OT|NT] [--out <dir>]');
+    console.log('Usage: node pipeline/src/index.js --audio <file|URL> --book "<name>" --chapter <n|introdução|encerramento> --narrator "<name>" [--testament OT|NT] [--out <dir>] [--id <reading id>]');
     process.exit(values.help ? 0 : 1);
+  }
+
+  // Idempotency: a reading that is already in the catalog is never processed again.
+  if (values.id) {
+    const existing = findReading(await loadCatalog(), values.id);
+    if (existing) {
+      console.log(`Reading ${values.id} is already published (https://youtu.be/${existing.youtubeId}). Nothing to do.`);
+      if (process.env.GITHUB_OUTPUT) await appendFile(process.env.GITHUB_OUTPUT, 'skip=true\n');
+      return;
+    }
   }
 
   // Default output folder: out/<book-slug>-<chapter> at the repository root.

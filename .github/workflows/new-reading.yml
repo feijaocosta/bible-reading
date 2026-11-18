@@ -1,6 +1,6 @@
-# Turns one reading (audio + details) into a video.
-# F2: manual run from the Actions tab; the MP4 is published as a workflow artifact.
-# Later phases add repository_dispatch (from the Google Form), YouTube upload and the catalog commit.
+# Turns one reading (audio + details) into a video, publishes it on YouTube and adds it to data/readings.json.
+# The MP4 is always kept as a workflow artifact first, so a YouTube failure never loses the work.
+# F4 adds repository_dispatch (from the Google Form).
 name: Nova leitura
 
 run-name: "${{ inputs.book }} — ${{ inputs.chapter }} — ${{ inputs.narrator }}"
@@ -24,11 +24,20 @@ on:
         description: 'Link do áudio (link direto, Google Drive "qualquer pessoa com o link" ou Dropbox)'
         required: true
         type: string
+      publish:
+        description: 'Publicar no YouTube e no catálogo (desmarcado: só gera o vídeo)'
+        required: false
+        type: boolean
+        default: false
+      id:
+        description: 'ID da leitura (opcional; vazio = "manual-" + número da execução)'
+        required: false
+        type: string
 
 permissions:
-  contents: read
+  contents: write # commit data/readings.json
 
-# One reading at a time, so later phases never race on the catalog commit.
+# One reading at a time, so two runs never race on the catalog commit.
 concurrency:
   group: new-reading
   cancel-in-progress: false
@@ -63,7 +72,9 @@ jobs:
 
       # Inputs go through environment variables, never straight into the shell script.
       - name: Generate video
+        id: generate
         env:
+          READING_ID: ${{ inputs.id || format('manual-{0}', github.run_id) }}
           BOOK: ${{ inputs.book }}
           CHAPTER: ${{ inputs.chapter }}
           NARRATOR: ${{ inputs.narrator }}
@@ -74,9 +85,11 @@ jobs:
             --book "$BOOK" \
             --chapter "$CHAPTER" \
             --narrator "$NARRATOR" \
+            --id "$READING_ID" \
             --out "$GITHUB_WORKSPACE/out/reading"
 
-      - name: Publish video as artifact
+      - name: Save video as artifact
+        if: steps.generate.outputs.skip != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: leitura-${{ github.run_number }}
@@ -87,3 +100,34 @@ jobs:
             out/reading/reading.json
           if-no-files-found: error
           retention-days: 30
+
+      - name: Publish on YouTube
+        id: publish
+        if: inputs.publish && steps.generate.outputs.skip != 'true'
+        env:
+          READING_ID: ${{ inputs.id || format('manual-{0}', github.run_id) }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          YT_PRIVACY: ${{ vars.YT_PRIVACY }}
+          YT_PLAYLIST_OT: ${{ vars.YT_PLAYLIST_OT }}
+          YT_PLAYLIST_NT: ${{ vars.YT_PLAYLIST_NT }}
+        run: node src/publish.js --dir "$GITHUB_WORKSPACE/out/reading" --id "$READING_ID"
+
+      - name: Commit catalog
+        if: steps.publish.outputs.published == 'true'
+        working-directory: .
+        env:
+          YOUTUBE_ID: ${{ steps.publish.outputs.youtube_id }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/readings.json
+          git commit -m "Add reading to catalog (https://youtu.be/$YOUTUBE_ID)"
+          for attempt in 1 2 3; do
+            git pull --rebase origin "$BRANCH" && git push origin "HEAD:$BRANCH" && exit 0
+            echo "Push failed (attempt $attempt), retrying..."; sleep $((attempt * 5))
+          done
+          echo "::error::Could not save the catalog. The video is on YouTube: https://youtu.be/$YOUTUBE_ID — add it to data/readings.json by hand before re-running."
+          exit 1

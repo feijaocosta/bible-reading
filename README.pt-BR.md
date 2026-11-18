@@ -50,7 +50,7 @@ Em construção, por fases:
 
 - [x] F0 — Estrutura base e dados dos livros
 - [x] F1 — Pipeline local (arte + MP4) e identidade visual
-- [ ] F2 — Execução manual no GitHub Actions
+- [x] F2 — Execução manual no GitHub Actions
 - [ ] F3 — Upload no YouTube + catálogo
 - [ ] F4 — Entrada pelo Google Forms
 - [ ] F5 — PWA
@@ -58,7 +58,7 @@ Em construção, por fases:
 
 ## Gerando um vídeo no GitHub Actions
 
-Veja o [docs/SETUP.pt-BR.md](docs/SETUP.pt-BR.md), seção 1: rode o workflow **Nova leitura** na aba Actions e baixe o MP4 na página da execução.
+Veja o [docs/SETUP.pt-BR.md](docs/SETUP.pt-BR.md). Seção 1: rode o workflow **Nova leitura** na aba Actions e baixe o MP4 na página da execução. Seção 2: configuração do YouTube, feita uma vez. Depois dela, o mesmo workflow sobe o vídeo, coloca na playlist e atualiza o `data/readings.json`.
 
 ## Rodando o pipeline localmente
 

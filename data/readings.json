@@ -1,1 +1,15 @@
-[]
+[
+  {
+    "id": "manual-44308101350",
+    "testament": "NT",
+    "book": "Tiago",
+    "bookSlug": "tiago",
+    "bookOrder": 59,
+    "part": "intro",
+    "chapter": null,
+    "narrator": "Silceia Jacinto",
+    "youtubeId": "pKwGLO14-S8",
+    "durationSec": 85,
+    "publishedAt": "2026-11-18T12:53:45.695Z"
+  }
+]

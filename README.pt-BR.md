@@ -49,12 +49,36 @@ Apps Script ──► GitHub API: repository_dispatch "new-reading"
 Em construção, por fases:
 
 - [x] F0 — Estrutura base e dados dos livros
-- [ ] F1 — Pipeline local (arte + MP4) e identidade visual
+- [x] F1 — Pipeline local (arte + MP4) e identidade visual
 - [ ] F2 — Execução manual no GitHub Actions
 - [ ] F3 — Upload no YouTube + catálogo
 - [ ] F4 — Entrada pelo Google Forms
 - [ ] F5 — PWA
 - [ ] F6 — Retorno do status na planilha
+
+## Rodando o pipeline localmente
+
+Requisitos: Node.js 20+ e FFmpeg (que já inclui o `ffprobe`).
+
+```bash
+cd pipeline
+npm install
+npx playwright install chromium   # navegador invisível usado para gerar a arte
+cd ..
+node pipeline/src/index.js --audio leitura.ogg --book "Gênesis" --chapter 1 --narrator "Maria" --testament OT
+```
+
+O resultado vai para `out/<livro>-<capítulo>/`:
+
+- `artwork.png`: a arte em 1920x1080
+- `thumbnail.jpg`: a miniatura do YouTube em 1280x720
+- `output.mp4`: o vídeo, com o volume do áudio nivelado
+
+Os nomes dos livros seguem o `data/books.json` (NVI) e não diferenciam maiúsculas nem acentos. A execução para com uma mensagem clara se o livro ou o capítulo não existir, se o testamento não bater com o livro ou se o áudio tiver menos de 10 segundos.
+
+Para ajustar o visual, abra `pipeline/template/artwork.html` no navegador: ele mostra uma leitura de exemplo. As fontes ficam em `pipeline/template/assets/fonts` (SIL Open Font License).
+
+Os testes rodam com `npm test` dentro de `pipeline/`.
 
 ## Reaproveitando o projeto
 

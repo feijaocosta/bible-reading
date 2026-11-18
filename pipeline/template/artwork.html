@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Bíblia lida por elas — artwork</title>
+<!--
+  1920x1080 artwork for each reading video.
+  The pipeline injects window.ARTWORK = { book, chapter, testamentLabel, narrator } before load,
+  waits for body[data-ready], and takes a screenshot. Opening this file directly in a browser
+  shows a sample, which is handy when tweaking the design.
+-->
+<style>
+@font-face { font-family: Fraunces; src: url(assets/fonts/Fraunces-Italic.woff2) format('woff2'); font-weight: 100 900; font-style: italic; }
+@font-face { font-family: Pinyon; src: url(assets/fonts/PinyonScript-Regular.ttf); }
+@font-face { font-family: Dafoe; src: url(assets/fonts/MrDafoe-Regular.ttf); }
+@font-face { font-family: Josefin; src: url(assets/fonts/JosefinSans-Bold.ttf); font-weight: 700; }
+@font-face { font-family: Jost; src: url(assets/fonts/Jost-Regular.ttf); font-weight: 400; }
+
+:root { --ink: #43302C; --rose: #A9464E; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; }
+body { position: relative; background: #EEDDBA; color: var(--ink); }
+svg.layer { position: absolute; inset: 0; }
+.orn, .orn * { fill: none; stroke: var(--lace); stroke-linecap: round; stroke-linejoin: round; }
+.orn .fill { fill: var(--lace); stroke: none; }
+.orn .dots { stroke-dasharray: 0.1 9; stroke-width: 3.2; }
+
+/* Logo on the watercolor panel */
+.mark { position: absolute; left: 0; width: 700px; top: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #FFFAF4; text-shadow: 0 2px 18px rgba(120, 45, 45, .45); }
+.mark .b { font-family: Dafoe; font-size: 190px; line-height: 1; }
+.mark .s { font-family: Josefin; font-weight: 700; font-size: 38px; letter-spacing: .34em; padding-left: .34em; margin-top: 8px; }
+
+/* Reading details on the ruled paper */
+.content { position: absolute; left: 880px; right: 110px; top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; }
+.testament { font-family: Jost; font-size: 26px; letter-spacing: .44em; text-transform: uppercase; color: var(--rose); }
+.book { font-family: Pinyon; font-size: 250px; line-height: 1.1; color: var(--rose); white-space: nowrap; margin: 6px 0 0 -10px; }
+.chapter { font-family: Fraunces; font-style: italic; font-weight: 500; font-size: 84px; font-variation-settings: 'opsz' 144, 'SOFT' 100; margin-top: -4px; }
+.rule { margin: 30px 0 26px; }
+.narrator { font-family: Fraunces; font-style: italic; font-weight: 400; font-size: 56px; font-variation-settings: 'opsz' 72, 'SOFT' 100; white-space: nowrap; }
+.narrator small { display: block; font-family: Jost; font-style: normal; font-size: 22px; letter-spacing: .4em; text-transform: uppercase; color: var(--rose); margin-bottom: 6px; }
+</style>
+</head>
+<body>
+<script src="assets/ornaments.js"></script>
+<script>
+const data = window.ARTWORK || { book: 'Gênesis', chapter: 1, testamentLabel: 'Antigo Testamento', narrator: 'Maria Silva' };
+
+// Seeded pseudo-random numbers keep every render identical.
+let seed = 11;
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const closed = (pts) => smoothPath(pts) + 'Z';
+
+const C = { rose: '#D7777B', blush: '#EBA79C', peach: '#F0BE98', blue: '#8EA8C6', ochre: '#D8A653', sage: '#9DB394', sageLight: '#B4C4A8', leaf: '#7E9A79', berry: '#A9464E', petalLight: '#F3CFC4' };
+
+const defs = `<defs>
+  <filter id="wash" x="-20%" y="-20%" width="140%" height="140%">
+    <feTurbulence type="fractalNoise" baseFrequency=".008" numOctaves="4" seed="4" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="90" result="d"/>
+    <feTurbulence type="fractalNoise" baseFrequency=".012" numOctaves="2" seed="9" result="n2"/>
+    <feColorMatrix in="n2" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  .9 0 0 0 .35" result="m"/>
+    <feComposite in="d" in2="m" operator="in" result="mottled"/>
+    <feGaussianBlur in="mottled" stdDeviation="5"/>
+  </filter>
+  <filter id="wc" x="-30%" y="-30%" width="160%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency=".04" numOctaves="3" seed="2" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="16" result="d"/>
+    <feGaussianBlur in="d" stdDeviation="1.1"/>
+  </filter>
+  <filter id="stain" x="-50%" y="-50%" width="200%" height="200%">
+    <feTurbulence type="fractalNoise" baseFrequency=".02" numOctaves="3" seed="5" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="50" result="d"/>
+    <feGaussianBlur in="d" stdDeviation="8"/>
+  </filter>
+  <filter id="ink">
+    <feTurbulence type="fractalNoise" baseFrequency=".9 .02" numOctaves="2" seed="8" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.5"/>
+  </filter>
+  <filter id="grain">
+    <feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="3" stitchTiles="stitch"/>
+    <feColorMatrix values="0 0 0 0 .45  0 0 0 0 .33  0 0 0 0 .2  0 0 0 .16 0"/>
+  </filter>
+  <radialGradient id="age" cx="62%" cy="48%" r="75%">
+    <stop offset="0" stop-color="#F5E9CE"/><stop offset=".6" stop-color="#EBD7B0"/><stop offset="1" stop-color="#D3B381"/>
+  </radialGradient>
+</defs>`;
+
+// ---------- Aged ruled paper ----------
+function agedPaper() {
+  let s = `<rect width="1920" height="1080" fill="url(#age)"/>`;
+  for (const [x, y, r, o] of [[1500, 210, 170, .10], [1180, 930, 120, .08], [1780, 560, 90, .07], [980, 120, 70, .06]])
+    s += `<ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r * .8}" fill="#9C6A2E" opacity="${o}" filter="url(#stain)"/>`;
+  s += `<circle cx="1640" cy="300" r="105" fill="none" stroke="#8C5A24" stroke-width="7" opacity=".09" filter="url(#stain)"/>`;
+  for (let i = 0; i < 60; i++)
+    s += `<circle cx="${760 + rnd() * 1160}" cy="${rnd() * 1080}" r="${1 + rnd() * 3.5}" fill="#8C5A24" opacity="${.08 + rnd() * .18}" filter="url(#wc)"/>`;
+  let lines = '';
+  for (let y = 96; y < 1080; y += 58) lines += `<line x1="700" y1="${y}" x2="1920" y2="${y}"/>`;
+  s += `<g stroke="#7E98B0" stroke-width="1.6" opacity=".38" filter="url(#ink)">${lines}</g>`;
+  s += `<g stroke="#C0655F" stroke-width="1.6" opacity=".45" filter="url(#ink)"><line x1="836" y1="0" x2="836" y2="1080"/><line x1="842" y1="0" x2="842" y2="1080"/></g>`;
+  return s + `<rect width="1920" height="1080" filter="url(#grain)"/>`;
+}
+
+// ---------- Watercolor wash panel ----------
+function blob(cx, cy, rx, ry, k = 14, jitter = .22) {
+  const pts = [];
+  for (let i = 0; i < k; i++) {
+    const a = (i / k) * TAU, j = 1 + (rnd() - .5) * jitter * 2;
+    pts.push([cx + Math.cos(a) * rx * j, cy + Math.sin(a) * ry * j]);
+  }
+  return closed(pts.concat([pts[0], pts[1]]));
+}
+function watercolorPanel() {
+  const edge = [];
+  for (let y = -80; y <= 1160; y += 90) edge.push([650 + Math.sin(y / 160) * 30 + (rnd() - .5) * 50, y]);
+  const panel = closed([[-100, -80], ...edge, [-100, 1160]]);
+  let s = `<g filter="url(#wash)">
+    <path d="${panel}" fill="${C.blush}" opacity=".85"/>
+    <path d="${blob(330, 520, 380, 470)}" fill="${C.rose}" opacity=".55"/>
+    <path d="${blob(160, 130, 260, 200)}" fill="${C.blue}" opacity=".45"/>
+    <path d="${blob(520, 980, 260, 170)}" fill="${C.sage}" opacity=".5"/>
+    <path d="${blob(560, 330, 160, 220)}" fill="${C.peach}" opacity=".55"/>
+    <path d="${blob(120, 900, 200, 230)}" fill="${C.rose}" opacity=".45"/>
+  </g>`;
+  s += `<path d="${smoothPath(edge)}" fill="none" stroke="#C86E6E" stroke-width="5" opacity=".35" filter="url(#wash)"/>`;
+  for (let i = 0; i < 26; i++)
+    s += `<circle cx="${560 + rnd() * 260}" cy="${rnd() * 1080}" r="${1.5 + rnd() * 5}" fill="${[C.rose, C.blue, C.ochre][i % 3]}" opacity="${.35 + rnd() * .3}" filter="url(#wc)"/>`;
+  return s;
+}
+
+// ---------- Watercolor botanicals ----------
+const petalPath = (len, w) => `M0 0 C${w} ${-len * .25} ${w * .9} ${-len * .85} 0 ${-len} C${-w * .9} ${-len * .85} ${-w} ${-len * .25} 0 0Z`;
+function flower(cx, cy, r, color, n = 5, rot = 0, center = '#7A3E3E') {
+  let fills = '', edges = '', dots = '';
+  for (let i = 0; i < n; i++) {
+    const a = rot + (i / n) * 360 + (rnd() - .5) * 16, L = r * (.85 + rnd() * .3);
+    const t = `translate(${cx} ${cy}) rotate(${a})`;
+    fills += `<path transform="${t}" d="${petalPath(L, L * .45)}" fill="${color}" opacity="${.5 + rnd() * .2}"/>`;
+    fills += `<path transform="${t}" d="${petalPath(L * .55, L * .2)}" fill="${color}" opacity=".45"/>`;
+    edges += `<path transform="${t}" d="${petalPath(L, L * .45)}" fill="none" stroke="${color}" stroke-width="2.5" opacity=".55"/>`;
+  }
+  for (let i = 0; i < 10; i++) {
+    const a = rnd() * TAU, d = r * .08 + rnd() * r * .14;
+    dots += `<circle cx="${cx + Math.cos(a) * d}" cy="${cy + Math.sin(a) * d}" r="${1.8 + rnd() * 2.6}" fill="${center}" opacity=".8"/>`;
+  }
+  return `<g filter="url(#wc)">${fills}${edges}</g>${dots}`;
+}
+function wleaf(x, y, len, angle, color) {
+  const w = len * .28, t = `translate(${x} ${y}) rotate(${angle})`;
+  return `<g filter="url(#wc)"><path transform="${t}" d="M0 0 C${len * .3} ${-w} ${len * .75} ${-w} ${len} 0 C${len * .75} ${w * .8} ${len * .3} ${w * .8} 0 0Z" fill="${color}" opacity=".6"/>
+    <path transform="${t}" d="M${len * .05} 0 Q${len * .5} ${-w * .15} ${len * .92} 0" stroke="${C.leaf}" stroke-width="1.4" fill="none" opacity=".7"/></g>`;
+}
+const bud = (x, y, r, color) => `<g filter="url(#wc)"><ellipse cx="${x}" cy="${y}" rx="${r * .7}" ry="${r}" fill="${color}" opacity=".75"/></g>`;
+const stem = (pts, w = 2) => `<path d="${smoothPath(pts)}" stroke="#6F7F62" stroke-width="${w}" fill="none" opacity=".6" stroke-linecap="round" filter="url(#wc)"/>`;
+
+function botanicals() {
+  const topLeft =
+    stem([[-20, 140], [110, 170], [240, 120], [340, 40]], 2.2) +
+    wleaf(150, 168, 90, -35, C.sage) + wleaf(250, 110, 72, -100, C.sageLight) + wleaf(60, 155, 75, 30, C.sage) +
+    flower(340, 40, 96, C.peach, 6) + flower(70, 70, 76, C.blue, 5, 20, '#3F4F6B') + bud(200, 60, 12, C.ochre) + bud(280, 150, 9, C.berry);
+  const bottomPanel =
+    stem([[600, 1110], [570, 1010], [620, 930]], 1.8) + wleaf(575, 1015, 70, -150, C.sage) + wleaf(590, 980, 60, -30, C.sageLight) +
+    flower(620, 930, 62, C.petalLight, 5, 15) + bud(545, 960, 10, C.ochre);
+  const bottomRight =
+    stem([[1960, 1010], [1850, 960], [1730, 980], [1640, 1040]], 2.4) +
+    stem([[1960, 880], [1880, 880], [1820, 830], [1800, 740]], 2) +
+    stem([[1900, 960], [1880, 870], [1920, 790]], 1.6) +
+    wleaf(1810, 962, 100, 200, C.sage) + wleaf(1720, 985, 80, 160, C.sageLight) + wleaf(1820, 840, 90, 245, C.sage) + wleaf(1890, 900, 70, 300, C.sageLight) +
+    flower(1880, 1000, 120, C.rose, 6, 10) + flower(1800, 735, 64, C.blue, 5, 30, '#3F4F6B') + flower(1650, 1035, 58, C.peach, 5) +
+    bud(1700, 935, 13, C.ochre) + bud(1925, 785, 11, C.ochre) + bud(1765, 905, 9, C.berry);
+  return topLeft + bottomPanel + bottomRight;
+}
+
+// ---------- Compose ----------
+document.body.insertAdjacentHTML('beforeend', `
+<svg class="layer" viewBox="0 0 1920 1080">${defs}
+  ${agedPaper()}
+  ${watercolorPanel()}
+  <g class="orn" style="--lace:#FFF6EF;stroke-width:1.2" opacity=".3">${doily(350, 540, 330, true)}</g>
+  ${botanicals()}
+</svg>
+<div class="mark"><span class="b">Bíblia</span><span class="s">lida por elas</span></div>
+<div class="content">
+  <div class="testament" id="testament"></div>
+  <div class="book" id="book"></div>
+  <div class="chapter" id="chapter"></div>
+  <svg class="rule" width="520" height="60" viewBox="0 -30 520 60"><g class="orn" style="stroke-width:1.7;--lace:#B0605C"><line x1="0" y1="0" x2="300" y2="0"/><g transform="translate(300 0)">${flourishHalf(200)}</g></g></svg>
+  <div class="narrator"><small>Leitura</small><span id="narrator"></span></div>
+</div>`);
+
+// User-provided values go in as text, never as HTML.
+document.getElementById('testament').textContent = data.testamentLabel;
+document.getElementById('book').textContent = data.book;
+document.getElementById('chapter').textContent = `capítulo ${data.chapter}`;
+document.getElementById('narrator').textContent = data.narrator;
+
+// Shrink a single-line element until it fits its own box.
+function fit(el, min) {
+  let size = parseFloat(getComputedStyle(el).fontSize);
+  while (el.scrollWidth > el.clientWidth && size > min) { size -= 2; el.style.fontSize = size + 'px'; }
+}
+
+// Load every declared font explicitly, so a missing file fails loudly instead of falling back.
+Promise.allSettled([...document.fonts].map((f) => f.load())).then(() => {
+  const failed = [...document.fonts].filter((f) => f.status !== 'loaded').map((f) => f.family);
+  if (failed.length) { document.body.dataset.error = 'Fonts failed to load: ' + failed.join(', '); return; }
+  fit(document.getElementById('book'), 60);
+  fit(document.querySelector('.narrator'), 28);
+  document.body.dataset.ready = '1';
+});
+</script>
+</body>
+</html>

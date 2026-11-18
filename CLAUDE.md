@@ -146,8 +146,12 @@ Nomes dos livros conforme a **NVI** (Nova Versão Internacional). Cada item tem 
 
 ### Identidade visual
 - Nome do projeto: **"Bíblia lida por elas"**. Não usa a identidade da igreja.
-- Identidade própria a ser elaborada (logo/wordmark, paleta, tipografia), usada na arte dos vídeos e no PWA.
-- Propor opções antes de fechar; a arte da F1 é o primeiro teste da identidade.
+- Identidade aprovada na F1 (base para o PWA):
+  - **Logo:** "Bíblia" em Mr Dafoe (caligrafia de pincel) + "lida por elas" em Josefin Sans Bold, espaçada.
+  - **Fundo:** painel em aquarela (rosé, pêssego, azul acinzentado, verde-sálvia) ao lado de papel antigo amarelado e pautado, com manchas.
+  - **Flores em aquarela** (rosé, pêssego, azul, botões ocre e framboesa) e renda discreta.
+  - **Tipografia:** livro em Pinyon Script (rosé `#A9464E`), capítulo e narradora em Fraunces Italic, rótulos em Jost com espaçamento largo. Texto em `#43302C`.
+  - Referência: `pipeline/template/artwork.html`.
 
 ### Arte (template)
 - 1920x1080. Mostra: **livro + capítulo** (destaque), **testamento**, **"Leitura: {narradora}"** e a marca "Bíblia lida por elas".
@@ -205,7 +209,7 @@ ffmpeg -y -loop 1 -framerate 1 -i artwork.png -i audio.ogg \
 Cada fase termina com algo testável. **Não avance sem a anterior funcionando.**
 
 - [x] **F0 — Base:** estrutura de pastas, `books.json` completo (66 livros, nomes NVI, nº de capítulos), READMEs (en + pt-BR) e `.gitignore`.
-- [ ] **F1 — Pipeline local + identidade:** propostas de identidade visual; `node pipeline/src/index.js --audio x.ogg --book "Gênesis" --chapter 1 --narrator "Maria" --testament OT` gera `artwork.png` e `output.mp4` localmente, sem Drive nem YouTube.
+- [x] **F1 — Pipeline local + identidade:** propostas de identidade visual; `node pipeline/src/index.js --audio x.ogg --book "Gênesis" --chapter 1 --narrator "Maria" --testament OT` gera `artwork.png` e `output.mp4` localmente, sem Drive nem YouTube.
 - [ ] **F2 — Actions manual:** workflow com `workflow_dispatch` (inputs manuais + URL ou caminho do áudio de teste) gera o MP4 e publica como artifact.
 - [ ] **F3 — YouTube + catálogo:** upload, playlist, atualização do `readings.json` com commit pelo bot. Idempotente.
 - [ ] **F4 — Entrada pelo Forms:** download do Drive via service account + `apps-script/Code.gs` disparando o `repository_dispatch`.

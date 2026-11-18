@@ -96,11 +96,15 @@ Princípios:
 | Nome de quem narrou | texto curto | sim |
 | Testamento | Antigo / Novo | sim |
 | Livro | lista suspensa (66 livros, NVI) | sim |
-| Capítulo | número | sim |
+| Parte da leitura | lista: Introdução / Capítulo / Encerramento | sim |
+| Capítulo | número (só quando a parte é "Capítulo") | condicional |
 | Áudio | upload de arquivo (.ogg/.opus/.mp3/.m4a) | sim |
 | "Ouvi e validei esta leitura" | caixa de seleção | sim |
 
 > O upload de arquivo no Forms exige que quem responde esteja logado no Google. Tudo bem, porque quem preenche é só a coordenadora.
+
+### Partes de uma leitura
+Além dos capítulos, cada livro pode ter, **opcionalmente**, uma **introdução** e um **encerramento**. O campo `part` vale `intro`, `chapter` ou `closing`; `chapter` só tem número quando `part` é `chapter` (senão é `null`). Na arte aparece "capítulo 3", "introdução" ou "encerramento". No PWA a introdução vem antes do capítulo 1 e o encerramento depois do último capítulo.
 
 ### `data/books.json`
 Nomes dos livros conforme a **NVI** (Nova Versão Internacional). Cada item tem também o nome em inglês, para uso futuro em outros idiomas.
@@ -118,6 +122,7 @@ Nomes dos livros conforme a **NVI** (Nova Versão Internacional). Cada item tem 
     "book": "Gênesis",
     "bookSlug": "genesis",
     "bookOrder": 1,
+    "part": "chapter",
     "chapter": 1,
     "narrator": "Maria Silva",
     "youtubeId": "abc123",
@@ -135,6 +140,7 @@ Nomes dos livros conforme a **NVI** (Nova Versão Internacional). Cada item tem 
     "id": "...",
     "testament": "OT",
     "book": "Gênesis",
+    "part": "chapter",
     "chapter": 1,
     "narrator": "Maria Silva",
     "driveFileId": "..."
@@ -169,7 +175,7 @@ ffmpeg -y -loop 1 -framerate 1 -i artwork.png -i audio.ogg \
 - Valide a duração com `ffprobe` e falhe se o áudio tiver menos de 10 segundos.
 
 ### YouTube
-- Título (em português): `{Livro} {Capítulo} — Leitura por {Narradora}`
+- Título (em português): `{Livro} {Capítulo} — Leitura por {Narradora}`; para introdução/encerramento: `{Livro} — Introdução — Leitura por {Narradora}`
 - Descrição: texto padrão + referência + nome da leitora.
 - Privacidade configurável por variável (`YT_PRIVACY`, padrão `unlisted`).
 - Playlist por testamento: `YT_PLAYLIST_OT` e `YT_PLAYLIST_NT`.
@@ -177,7 +183,7 @@ ffmpeg -y -loop 1 -framerate 1 -i artwork.png -i audio.ogg \
 
 ### PWA
 - Resultado visual caprichado: pode usar framework se isso ajudar.
-- Navegação: Testamento → Livro → Capítulos disponíveis → player (embed `youtube-nocookie.com`).
+- Navegação: Testamento → Livro → Capítulos disponíveis (com introdução e encerramento, quando houver) → player (embed `youtube-nocookie.com`).
 - Busca simples por livro e por narradora.
 - Instalável (manifest + service worker). Cache só do shell e do JSON, nunca dos vídeos.
 - Mobile first, acessível. Interface em português, com textos centralizados para permitir outros idiomas.

@@ -1,6 +1,7 @@
 // Renders the HTML artwork template to a 1920x1080 PNG with headless Chromium.
 import { chromium } from 'playwright';
 import { pathToFileURL, fileURLToPath } from 'node:url';
+import { partLabel } from './books.js';
 
 const TEMPLATE = fileURLToPath(new URL('../template/artwork.html', import.meta.url));
 export const ARTWORK_SIZE = { width: 1920, height: 1080 };
@@ -14,7 +15,7 @@ export async function renderArtwork(reading, outPath, { timeoutMs = 30_000 } = {
 
     const artwork = {
       book: reading.book,
-      chapter: reading.chapter,
+      partLabel: partLabel(reading),
       testamentLabel: reading.testamentLabel,
       narrator: reading.narrator,
     };

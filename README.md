@@ -74,6 +74,8 @@ The output goes to `out/<book>-<chapter>/`:
 - `thumbnail.jpg`: the 1280x720 YouTube thumbnail
 - `output.mp4`: the video, with the audio volume normalized
 
+`--chapter` also accepts `introdução` (book introduction) or `encerramento` (book closing); both are optional for each book.
+
 Book names follow `data/books.json` (NVI) and are case- and accent-insensitive. The run fails with a clear message if the book or chapter does not exist, the testament does not match the book, or the audio is shorter than 10 seconds.
 
 To tweak the design, open `pipeline/template/artwork.html` in a browser: it shows a sample reading. Fonts are bundled in `pipeline/template/assets/fonts` (SIL Open Font License).

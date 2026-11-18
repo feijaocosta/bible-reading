@@ -5,7 +5,7 @@
 <title>Bíblia lida por elas — artwork</title>
 <!--
   1920x1080 artwork for each reading video.
-  The pipeline injects window.ARTWORK = { book, chapter, testamentLabel, narrator } before load,
+  The pipeline injects window.ARTWORK = { book, partLabel, testamentLabel, narrator } before load,
   waits for body[data-ready], and takes a screenshot. Opening this file directly in a browser
   shows a sample, which is handy when tweaking the design.
 -->
@@ -34,7 +34,7 @@ svg.layer { position: absolute; inset: 0; }
 .content { position: absolute; left: 880px; right: 110px; top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; }
 .testament { font-family: Jost; font-size: 26px; letter-spacing: .44em; text-transform: uppercase; color: var(--rose); }
 .book { font-family: Pinyon; font-size: 250px; line-height: 1.1; color: var(--rose); white-space: nowrap; margin: 6px 0 0 -10px; }
-.chapter { font-family: Fraunces; font-style: italic; font-weight: 500; font-size: 84px; font-variation-settings: 'opsz' 144, 'SOFT' 100; margin-top: -4px; }
+.chapter { font-family: Fraunces; font-style: italic; font-weight: 500; font-size: 84px; font-variation-settings: 'opsz' 144, 'SOFT' 100; margin-top: 26px; }
 .rule { margin: 30px 0 26px; }
 .narrator { font-family: Fraunces; font-style: italic; font-weight: 400; font-size: 56px; font-variation-settings: 'opsz' 72, 'SOFT' 100; white-space: nowrap; }
 .narrator small { display: block; font-family: Jost; font-style: normal; font-size: 22px; letter-spacing: .4em; text-transform: uppercase; color: var(--rose); margin-bottom: 6px; }
@@ -43,7 +43,7 @@ svg.layer { position: absolute; inset: 0; }
 <body>
 <script src="assets/ornaments.js"></script>
 <script>
-const data = window.ARTWORK || { book: 'Gênesis', chapter: 1, testamentLabel: 'Antigo Testamento', narrator: 'Maria Silva' };
+const data = window.ARTWORK || { book: 'Gênesis', partLabel: 'capítulo 1', testamentLabel: 'Antigo Testamento', narrator: 'Maria Silva' };
 
 // Seeded pseudo-random numbers keep every render identical.
 let seed = 11;
@@ -189,7 +189,7 @@ document.body.insertAdjacentHTML('beforeend', `
 // User-provided values go in as text, never as HTML.
 document.getElementById('testament').textContent = data.testamentLabel;
 document.getElementById('book').textContent = data.book;
-document.getElementById('chapter').textContent = `capítulo ${data.chapter}`;
+document.getElementById('chapter').textContent = data.partLabel;
 document.getElementById('narrator').textContent = data.narrator;
 
 // Shrink a single-line element until it fits its own box.

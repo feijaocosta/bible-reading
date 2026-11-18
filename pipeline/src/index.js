@@ -3,11 +3,12 @@
 //
 // Usage:
 //   node pipeline/src/index.js --audio reading.ogg --book "Gênesis" --chapter 1 --narrator "Maria" [--testament OT] [--out dir]
+//   --chapter also accepts "introdução" (book introduction) and "encerramento" (book closing).
 import { parseArgs } from 'node:util';
 import { mkdir, access } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
-import { resolveReading } from './books.js';
+import { resolveReading, partLabel, partKey } from './books.js';
 import { renderArtwork, ARTWORK_SIZE } from './artwork.js';
 import { assertAudio, createVideo, createThumbnail, probeDuration, probeImageSize } from './video.js';
 
@@ -16,7 +17,7 @@ export async function processReading({ audio, outDir, ...details }, log = consol
   await access(audio).catch(() => { throw new Error(`Audio file not found: ${audio}`); });
   await mkdir(outDir, { recursive: true });
 
-  log(`Reading: ${reading.book} ${reading.chapter} (${reading.testament}), narrated by ${reading.narrator}`);
+  log(`Reading: ${reading.book}, ${partLabel(reading)} (${reading.testament}), narrated by ${reading.narrator}`);
 
   const audioSeconds = await assertAudio(audio);
   log(`Audio OK: ${audioSeconds.toFixed(1)}s`);
@@ -55,13 +56,13 @@ async function main() {
   });
 
   if (values.help || !values.audio) {
-    console.log('Usage: node pipeline/src/index.js --audio <file> --book "<name>" --chapter <n> --narrator "<name>" [--testament OT|NT] [--out <dir>]');
+    console.log('Usage: node pipeline/src/index.js --audio <file> --book "<name>" --chapter <n|introdução|encerramento> --narrator "<name>" [--testament OT|NT] [--out <dir>]');
     process.exit(values.help ? 0 : 1);
   }
 
   // Default output folder: out/<book-slug>-<chapter> at the repository root.
   const reading = resolveReading(values);
-  const outDir = values.out ?? path.resolve(import.meta.dirname, '../../out', `${reading.bookSlug}-${reading.chapter}`);
+  const outDir = values.out ?? path.resolve(import.meta.dirname, '../../out', `${reading.bookSlug}-${partKey(reading)}`);
 
   const result = await processReading({ ...values, outDir });
   console.log(JSON.stringify(result, null, 2));

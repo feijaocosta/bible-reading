@@ -74,6 +74,8 @@ O resultado vai para `out/<livro>-<capítulo>/`:
 - `thumbnail.jpg`: a miniatura do YouTube em 1280x720
 - `output.mp4`: o vídeo, com o volume do áudio nivelado
 
+O `--chapter` também aceita `introdução` ou `encerramento`, que são opcionais em cada livro.
+
 Os nomes dos livros seguem o `data/books.json` (NVI) e não diferenciam maiúsculas nem acentos. A execução para com uma mensagem clara se o livro ou o capítulo não existir, se o testamento não bater com o livro ou se o áudio tiver menos de 10 segundos.
 
 Para ajustar o visual, abra `pipeline/template/artwork.html` no navegador: ele mostra uma leitura de exemplo. As fontes ficam em `pipeline/template/assets/fonts` (SIL Open Font License).

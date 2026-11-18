@@ -50,7 +50,7 @@ Princípios:
 | Processamento | GitHub Actions (ubuntu-latest), Node.js 20 |
 | Arte | Template HTML/CSS → PNG via Playwright (Chromium) |
 | Vídeo | FFmpeg |
-| Publicação | YouTube Data API v3 (`googleapis`) |
+| Publicação | YouTube Data API v3 via `fetch` nativo (sem `googleapis`, para manter dependências mínimas) |
 | App | PWA no GitHub Pages. Framework permitido (decidir na F5); build feito no workflow de deploy |
 
 ## 4. Estrutura do repositório
@@ -176,9 +176,12 @@ Nomes dos livros conforme a **NVI** (Nova Versão Internacional). Cada item tem 
 ### YouTube
 - Título (em português): `{Livro} {Capítulo} — Leitura por {Narradora}`; para introdução/encerramento: `{Livro} — Introdução — Leitura por {Narradora}`
 - Descrição: texto padrão + referência + nome da leitora.
+- Categoria: Educação (27). Idioma: pt-BR. Miniatura = arte em 1280x720.
 - Privacidade configurável por variável (`YT_PRIVACY`, padrão `unlisted`).
 - Playlist por testamento: `YT_PLAYLIST_OT` e `YT_PLAYLIST_NT`.
 - **Se o upload falhar, o workflow não perde o trabalho:** o MP4 fica como artifact do Actions e o erro aparece claro no log.
+- **Depois que o vídeo subiu**, falhas de miniatura/playlist viram aviso e o catálogo é sempre atualizado, para nunca subir o mesmo vídeo duas vezes.
+- Implementação: `pipeline/src/youtube.js` (cliente), `pipeline/src/publish.js` (upload → miniatura → playlist → catálogo), `pipeline/src/catalog.js`.
 
 ### PWA
 - Resultado visual caprichado: pode usar framework se isso ajudar.
@@ -204,7 +207,7 @@ Nomes dos livros conforme a **NVI** (Nova Versão Internacional). Cada item tem 
 
 - **App OAuth em modo "Teste"** faz o refresh token expirar em cerca de 7 dias. Coloque o app em **produção**.
 - **Projetos de API não auditados** podem ter os envios travados como privados. Peça a auditoria do YouTube API Services (é gratuita).
-- **Cota padrão** de 10.000 unidades/dia. Cada upload custa cerca de 1.600, o que dá umas 6 por dia. Se chegarem mais, elas ficam na fila e saem no dia seguinte.
+- **Cota:** em nov/2026 as fontes divergiam (upload a ~1.600 de 10.000 unidades/dia, ~6/dia, ou cota própria de ~100 uploads/dia desde dez/2025); não foi possível checar a página oficial. O SETUP manda conferir em Cloud Console → Cotas. Com `quotaExceeded`, a execução falha com mensagem clara e o MP4 fica no artifact.
 - Use `concurrency` no workflow para que duas leituras simultâneas não briguem no commit do `readings.json`.
 
 > Confira esses números na documentação oficial na hora de implementar, porque podem ter mudado.
@@ -215,7 +218,7 @@ Cada fase termina com algo testável. **Não avance sem a anterior funcionando.*
 
 - [x] **F0 — Base:** estrutura de pastas, `books.json` completo (66 livros, nomes NVI, nº de capítulos), READMEs (en + pt-BR) e `.gitignore`.
 - [x] **F1 — Pipeline local + identidade:** propostas de identidade visual; `node pipeline/src/index.js --audio x.ogg --book "Gênesis" --chapter 1 --narrator "Maria" --testament OT` gera `artwork.png` e `output.mp4` localmente, sem Drive nem YouTube.
-- [ ] **F2 — Actions manual:** workflow com `workflow_dispatch` (inputs manuais + URL ou caminho do áudio de teste) gera o MP4 e publica como artifact.
+- [x] **F2 — Actions manual:** workflow com `workflow_dispatch` (inputs manuais + URL ou caminho do áudio de teste) gera o MP4 e publica como artifact.
 - [ ] **F3 — YouTube + catálogo:** upload, playlist, atualização do `readings.json` com commit pelo bot. Idempotente.
 - [ ] **F4 — Entrada pelo Forms:** download do Drive via service account + `apps-script/Code.gs` disparando o `repository_dispatch`.
 - [ ] **F5 — PWA:** escolha do framework, navegação, player, instalação, deploy no Pages.

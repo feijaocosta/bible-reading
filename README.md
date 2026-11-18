@@ -50,7 +50,7 @@ Work in progress, built in phases:
 
 - [x] F0 — Base structure and book data
 - [x] F1 — Local pipeline (artwork + MP4) and visual identity
-- [ ] F2 — Manual GitHub Actions run
+- [x] F2 — Manual GitHub Actions run
 - [ ] F3 — YouTube upload + catalog
 - [ ] F4 — Google Forms input
 - [ ] F5 — PWA
@@ -58,7 +58,7 @@ Work in progress, built in phases:
 
 ## Generating a video on GitHub Actions
 
-See [docs/SETUP.md](docs/SETUP.md), section 1: run the **Nova leitura** workflow from the Actions tab and download the MP4 from the run page.
+See [docs/SETUP.md](docs/SETUP.md). Section 1: run the **Nova leitura** workflow from the Actions tab and download the MP4 from the run page. Section 2: one-time YouTube setup, after which the same workflow can upload the video, add it to the playlist and update `data/readings.json`.
 
 ## Running the pipeline locally
 

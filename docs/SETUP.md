@@ -268,9 +268,11 @@ Readings published before the app's own audio existed show the YouTube video in 
 
 ### What the app does
 
-- Plays each reading's **own audio** (MP3 stored in GitHub Releases), including with the screen locked.
+- Plays each reading's **own audio** (MP3 served by the site itself), including with the screen locked.
 - **Download (Baixar):** saves a reading on the device to listen offline. On iPhones, if the app goes unused for weeks, the system may clear downloaded audio. Just download it again.
 - Readings published before the app audio existed show the **YouTube video** instead of the player.
 - Each reading has **its own address**. When shared on WhatsApp, the preview shows the reading's artwork.
 
-> 💡 For the first reading published after this setup, the **Nova leitura** run summary says whether the app's "Download" will work ("download offline ✅"). If it shows ⚠️, the app still plays online as usual, but let us know so we can adjust the download.
+### Where the audio lives
+
+The MP3s are stored in **GitHub Releases** (one release per book). Every time the app is published, they are copied into the GitHub Pages site itself, because iPhones can't play audio straight from Releases. A GitHub Pages site can be **up to 1 GB**, roughly **500 readings** of 4 minutes. The **Publicar app** run summary shows how much is used and warns above 85%. At that point, it's time to move the audio to another free host (for example, the Internet Archive).

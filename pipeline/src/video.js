@@ -93,12 +93,13 @@ export async function createVideo({ image, mix, output }) {
   return output;
 }
 
-// Mix -> MP3 for the app (small enough for mobile data and offline downloads).
+// Mix -> MP3 for the app. 64 kbps is plenty for voice, light on mobile data, and keeps the audio served by
+// GitHub Pages (1 GB limit) at roughly 2 MB per 4-minute reading.
 export async function createMp3({ mix, output, title, artist }) {
   await exec('ffmpeg', [
     '-hide_banner', '-loglevel', 'error', '-y',
     '-i', mix,
-    '-c:a', 'libmp3lame', '-b:a', '96k',
+    '-c:a', 'libmp3lame', '-b:a', '64k',
     '-metadata', `title=${title ?? ''}`, '-metadata', `artist=${artist ?? ''}`, '-metadata', 'album=Bíblia lida por elas',
     output,
   ]);

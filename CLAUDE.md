@@ -54,7 +54,7 @@ Princípios:
 | Vídeo | FFmpeg |
 | Publicação | YouTube Data API v3 via `fetch` nativo (sem `googleapis`, para manter dependências mínimas) |
 | App | PWA em SvelteKit (Svelte 5) + adapter-static no GitHub Pages; uma página pré-gerada por livro, capítulo, leitura e leitora |
-| Áudio do app | MP3 96 kbps (mesma mixagem do vídeo) em GitHub Releases |
+| Áudio do app | MP3 64 kbps (mesma mixagem do vídeo), guardado no GitHub Releases e **servido pelo GitHub Pages** (copiado no deploy) |
 
 ## 4. Estrutura do repositório
 
@@ -194,13 +194,14 @@ Nomes dos livros conforme a **NVI** (Nova Versão Internacional). Cada item tem 
 ### PWA (decidido na F5)
 - **SvelteKit + adapter-static**, todas as páginas pré-geradas a partir do catálogo no build (`site/`). Telas aprovadas: Início, Livro, Ouvindo, Leitora, com mini player persistente.
 - **URLs únicas:** `/` · `/<livro>/` · `/<livro>/<capítulo|introducao|encerramento>/` (leitura mais recente) · `/<livro>/<parte>/<leitora>/` (leitura específica; é o link do botão Compartilhar) · `/leitora/<leitora>/`. Cada página tem Open Graph (prévia com a arte no WhatsApp).
-- **Áudio próprio, não o YouTube:** o app toca o MP3 do Releases (toca com a tela bloqueada, Media Session na tela de bloqueio). Leituras antigas sem `audioUrl` mostram o embed `youtube-nocookie.com`. O botão "Ver no YouTube" leva ao vídeo.
+- **Áudio próprio, não o YouTube:** o app toca o MP3 servido pelo próprio Pages (`/audio/<tag>/<arquivo>`, copiado do Releases por `site/scripts/fetch-media.js` no deploy) (toca com a tela bloqueada, Media Session na tela de bloqueio). Leituras antigas sem `audioUrl` mostram o embed `youtube-nocookie.com`. O botão "Ver no YouTube" leva ao vídeo.
 - **Recursos:** busca por livro e leitora; recentes; continuar de onde parou (localStorage); capítulos sem áudio aparecem apagados; anterior/próximo; compartilhar (Web Share ou copiar link); **baixar para ouvir offline** (Cache Storage + service worker com suporte a Range).
 - **Cache:** shell + páginas visitadas (network-first) e, só quando a pessoa toca em "Baixar", o MP3 e a capa. Vídeos nunca.
 - Instalável (manifest + ícones a partir de `brand/avatar.png`). Mobile first, acessível. Textos em `site/src/lib/strings.js`.
 - Recursos visuais do app (aquarelas, fontes) gerados de `pipeline/template/assets` por `site/scripts/prepare-assets.js`.
 - Deploy: `.github/workflows/deploy-site.yml` (push em `site/` ou `data/`, manual, e chamado pelo `new-reading.yml` após cada publicação, porque commits do bot não disparam workflows).
-- O download offline depende de CORS no download do Releases; o `new-reading.yml` verifica e informa no resumo da execução.
+- **Por que não tocar direto do Releases:** o GitHub entrega os assets como `application/octet-stream` + `attachment` e sem CORS; o Safari (todo navegador no iPhone) não toca e o download offline não funciona. Servido pelo Pages: `audio/mpeg`, Range e mesma origem.
+- **Limite:** site do Pages até 1 GB (~500 leituras de 4 min a 64 kbps). O deploy mostra o uso e avisa acima de 85%; aí mover os áudios para outro host (ex.: Internet Archive) — perguntar antes de criar a conta.
 
 ## 7. Secrets e variáveis
 

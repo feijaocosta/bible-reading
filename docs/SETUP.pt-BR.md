@@ -268,9 +268,11 @@ Leituras publicadas antes do áudio próprio do app existir aparecem no app com 
 
 ### O que o app faz
 
-- Toca o **áudio próprio** de cada leitura (MP3 guardado no GitHub Releases), inclusive com a tela bloqueada.
+- Toca o **áudio próprio** de cada leitura (MP3 servido pelo próprio site), inclusive com a tela bloqueada.
 - **Baixar:** guarda a leitura no aparelho para ouvir sem internet. No iPhone, se o app ficar semanas sem uso, o sistema pode apagar os áudios baixados. Basta baixar de novo.
 - Leituras publicadas antes do áudio próprio existir aparecem com o **vídeo do YouTube** no lugar do player.
 - Cada leitura tem um **endereço próprio**. Ao compartilhar no WhatsApp, a prévia mostra a arte da leitura.
 
-> 💡 Na primeira leitura publicada depois desta configuração, o resumo da execução **Nova leitura** mostra se o "Baixar" do app vai funcionar ("download offline ✅"). Se aparecer ⚠️, o app continua tocando normalmente pela internet, mas avise para ajustarmos o download.
+### Onde ficam os áudios
+
+Os MP3 ficam guardados no **GitHub Releases** (uma release por livro). A cada publicação do app, eles são copiados para o próprio site do GitHub Pages, porque o iPhone não toca áudio direto do Releases. O site do GitHub Pages pode ter **até 1 GB**, o que dá umas **500 leituras** de 4 minutos. O resumo da execução **Publicar app** mostra quanto já foi usado e avisa quando passar de 85%. Nesse ponto, é hora de mover os áudios para outro serviço gratuito (por exemplo, o Internet Archive).

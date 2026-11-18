@@ -127,11 +127,13 @@ GitHub uses this authorization to upload videos on behalf of the channel. You ge
 
 ### 2.8. Request the API audit (important)
 
-Until the Google Cloud project is audited, **every video uploaded through the API is locked as private**, and you can't appeal it later. The audit is free.
+According to YouTube's documentation, videos uploaded by an **unaudited** API project may be locked as **private**, with no appeal. The audit is free.
+
+> 📝 In our first test (Nov 2026) the video came out **public even without the audit**. Request it anyway: the rule is still documented, the lock may happen after the upload, and the audit is also how you ask for more quota. If a video ever shows up as private without you asking for it, this is why.
 
 1. Open the [YouTube API Services – Audit and Quota Extension](https://support.google.com/youtube/contact/yt_api_form) form.
 2. Choose the audit option and fill in your project details (project name and number are on the Google Cloud dashboard). Describe the use: *"Automated uploads of Bible readings recorded by volunteers to our own channel; internal use, no external users."*
-3. The reply may take a few weeks. Meanwhile, test with `YT_PRIVACY` = `private`.
+3. The reply may take a few weeks. Meanwhile, check YouTube Studio now and then to confirm the videos keep the visibility you chose.
 
 ### 2.9. Test
 

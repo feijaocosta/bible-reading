@@ -80,6 +80,7 @@ Princípios:
 │       └── assets/           # fontes, fundo, logo
 ├── apps-script/
 │   └── Code.gs               # onFormSubmit → dispatch
+├── brand/                    # avatar do canal etc. (mesmo código/paleta da arte; node brand/render.js)
 ├── data/
 │   ├── books.json            # 66 livros (NVI): nome, abreviação, testamento, ordem, nº de capítulos
 │   └── readings.json         # catálogo gerado pelo pipeline
@@ -157,7 +158,8 @@ Nomes dos livros conforme a **NVI** (Nova Versão Internacional). Cada item tem 
   - **Fundo:** painel em aquarela (rosé, pêssego, azul acinzentado, verde-sálvia) ao lado de papel antigo amarelado e pautado, com manchas.
   - **Flores em aquarela** (rosé, pêssego, azul, botões ocre e framboesa) e renda discreta.
   - **Tipografia:** livro em Pinyon Script (rosé `#A9464E`), capítulo e narradora em Fraunces Italic, rótulos em Jost com espaçamento largo. Texto em `#43302C`.
-  - Referência: `pipeline/template/artwork.html`.
+  - Referência: `pipeline/template/artwork.html`. Kit de aquarela compartilhado: `pipeline/template/assets/watercolor.js`.
+  - **Avatar do YouTube aprovado:** versão aquarela com o logo em branco (`brand/avatar.png`).
 
 ### Arte (template)
 - 1920x1080. Mostra: **livro + capítulo** (destaque), **testamento**, **"Leitura: {narradora}"** e a marca "Bíblia lida por elas".

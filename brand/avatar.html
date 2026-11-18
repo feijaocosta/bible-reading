@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Bíblia lida por elas — YouTube avatar</title>
+<!-- 800x800 channel avatar (YouTube crops it to a circle). Render with: node brand/render.js -->
+<style>
+@font-face { font-family: Dafoe; src: url(../pipeline/template/assets/fonts/MrDafoe-Regular.ttf); }
+@font-face { font-family: Josefin; src: url(../pipeline/template/assets/fonts/JosefinSans-Bold.ttf); font-weight: 700; }
+* { margin: 0; padding: 0; }
+html, body { width: 800px; height: 800px; overflow: hidden; }
+body { position: relative; background: #EBA79C; }
+svg { position: absolute; inset: 0; }
+.orn, .orn * { fill: none; stroke: var(--lace); stroke-linecap: round; stroke-linejoin: round; }
+.orn .fill { fill: var(--lace); stroke: none; }
+.orn .dots { stroke-dasharray: 0.1 9; stroke-width: 3.2; }
+.mark { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #FFFAF4; text-shadow: 0 3px 22px rgba(120, 45, 45, .5); }
+.mark .b { font-family: Dafoe; font-size: 250px; line-height: 1; margin-top: -10px; }
+.mark .s { font-family: Josefin; font-weight: 700; font-size: 50px; letter-spacing: .3em; padding-left: .3em; margin-top: 6px; }
+</style>
+</head>
+<body>
+<script src="../pipeline/template/assets/ornaments.js"></script>
+<script src="../pipeline/template/assets/watercolor.js"></script>
+<script>
+let seed = 23;
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const closed = (pts) => smoothPath(pts) + 'Z';
+
+const wash = `<g filter="url(#wash)">
+  <rect x="-80" y="-80" width="960" height="960" fill="${C.blush}" opacity=".9"/>
+  <path d="${blob(400, 430, 330, 330)}" fill="${C.rose}" opacity=".55"/>
+  <path d="${blob(170, 160, 230, 190)}" fill="${C.blue}" opacity=".5"/>
+  <path d="${blob(650, 690, 250, 180)}" fill="${C.sage}" opacity=".5"/>
+  <path d="${blob(640, 200, 170, 190)}" fill="${C.peach}" opacity=".6"/>
+  <path d="${blob(150, 650, 180, 170)}" fill="${C.rose}" opacity=".45"/>
+</g>`;
+
+const topLeft =
+  stem([[90, 250], [150, 200], [220, 170]], 2.2) + wleaf(150, 200, 70, -60, C.sage) + wleaf(120, 225, 60, 200, C.sageLight) +
+  flower(225, 165, 62, C.peach, 6) + flower(140, 265, 42, C.blue, 5, 20, '#3F4F6B') + bud(190, 215, 10, C.ochre);
+const bottomRight = `<g transform="translate(15 50)">` +
+  stem([[710, 560], [650, 610], [580, 640]], 2.2) + wleaf(650, 610, 70, 120, C.sage) + wleaf(680, 585, 55, 10, C.sageLight) +
+  flower(575, 640, 58, C.rose, 6, 10) + flower(665, 545, 40, C.petalLight, 5) + bud(615, 665, 10, C.berry) + bud(700, 620, 9, C.ochre) + `</g>`;
+
+document.body.insertAdjacentHTML('beforeend', `
+<svg viewBox="0 0 800 800">${defs}${wash}
+  <g class="orn" style="--lace:#FFF6EF;stroke-width:1.5" opacity=".38">${doily(400, 400, 385, true)}</g>
+  ${topLeft}${bottomRight}
+</svg>
+<div class="mark"><span class="b">Bíblia</span><span class="s">lida por elas</span></div>`);
+
+document.fonts.ready.then(() => { document.body.dataset.ready = '1'; });
+</script>
+</body>
+</html>

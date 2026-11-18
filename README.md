@@ -59,3 +59,7 @@ Work in progress, built in phases:
 ## Reusing this project
 
 The code is in English and the user-facing texts are in Portuguese. Book names in `data/books.json` include English names (`nameEn`) to make other languages easier.
+
+## License
+
+Code: [MIT](LICENSE). Audio recordings and videos are not part of this repository and are not covered by this license.

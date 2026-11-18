@@ -59,3 +59,7 @@ Em construção, por fases:
 ## Reaproveitando o projeto
 
 O código está em inglês e os textos para o usuário final estão em português. O `data/books.json` traz também os nomes em inglês (`nameEn`) para facilitar outros idiomas.
+
+## Licença
+
+Código: [MIT](LICENSE). As gravações de áudio e os vídeos não fazem parte deste repositório e não estão cobertos por esta licença.

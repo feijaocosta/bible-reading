@@ -13,6 +13,9 @@
     chevron: '<path d="M9 5l7 7-7 7"/>',
     close: '<path d="M6 6l12 12M18 6 6 18"/>',
     trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+    autoplay: '<path d="M4 7h11M4 12h11M4 17h7"/><path d="M16 14.5v6l5-3z" fill="currentColor"/>',
+    saved: '<path d="M6 3h12v18l-6-4-6 4z"/><path d="M12 7v6M9.5 10.5 12 13l2.5-2.5"/>',
+    refresh: '<path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v4h-4"/>',
   };
   const filled = {
     play: '<path d="M7 4.5v15l13-7.5z"/>',

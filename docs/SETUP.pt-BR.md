@@ -276,3 +276,49 @@ Leituras publicadas antes do áudio próprio do app existir aparecem no app com 
 ### Onde ficam os áudios
 
 Os MP3 ficam guardados no **GitHub Releases** (uma release por livro). A cada publicação do app, eles são copiados para o próprio site do GitHub Pages, porque o iPhone não toca áudio direto do Releases. O site do GitHub Pages pode ter **até 1 GB**, o que dá umas **500 leituras** de 4 minutos. O resumo da execução **Publicar app** mostra quanto já foi usado e avisa quando passar de 85%. Nesse ponto, é hora de mover os áudios para outro serviço gratuito (por exemplo, o Internet Archive).
+
+## 5. Google Analytics (opcional)
+
+O app já envia eventos para o Google Analytics 4. Enquanto não houver um ID configurado, **nada é carregado nem enviado**.
+
+1. Acesse [analytics.google.com](https://analytics.google.com) → **Administrador** (engrenagem) → **Criar** → **Propriedade**. Nome: `Bíblia lida por elas`. Fuso horário e moeda do Brasil.
+2. Escolha **Web** como plataforma. URL: o endereço do app (seção 4 ou 6). Nome do fluxo: `App`.
+3. Copie o **ID da métrica**, que começa com `G-`.
+4. No GitHub: **Settings** → **Secrets and variables** → **Actions** → aba **Variables** → **New repository variable**. Nome: `GA_MEASUREMENT_ID`. Valor: o `G-...`.
+5. Aba **Actions** → **Publicar app** → **Run workflow**. Pronto: em poucos minutos os acessos aparecem em **Relatórios → Tempo real**.
+
+### Eventos enviados
+
+| Evento | Quando | Detalhes |
+|---|---|---|
+| `page_view` | cada tela aberta | endereço e título |
+| `audio_play` | uma leitura começa a tocar | livro, parte, leitora, online/offline |
+| `audio_progress` | 25%, 50% e 75% ouvidos | livro, porcentagem |
+| `audio_complete` | a leitura chegou ao fim | livro, leitora |
+| `autoplay_toggle` / `autoplay_next` | "tocar em sequência" ligado/desligado / passou para a próxima | — |
+| `speed_change` | velocidade alterada | velocidade |
+| `download` | leitura ou livro inteiro baixado | leitura ou livro |
+| `download_remove` | baixados apagados | um ou todos |
+| `share` | botão compartilhar | leitura ou livro, como foi compartilhado |
+| `search` | busca digitada | termo |
+| `app_installed` / `app_update` | app instalado / atualizado para nova versão | — |
+
+> ⚖️ **LGPD:** o Google Analytics usa cookies. Antes de ativar, vale incluir no app um aviso de privacidade (e, se a igreja preferir, um pedido de consentimento). Peça que preparamos.
+
+## 6. Domínio próprio
+
+Para o app ficar num endereço como `biblia.kingdomapps.net` em vez de `feijaocosta.github.io/bible-reading`:
+
+1. No painel do seu domínio (onde o `kingdomapps.net` foi registrado ou onde está o DNS, por exemplo Cloudflare, Registro.br, GoDaddy), crie um registro **CNAME**:
+
+   | Tipo | Nome | Valor |
+   |---|---|---|
+   | CNAME | `biblia` (o subdomínio escolhido) | `feijaocosta.github.io` |
+
+   Se usar a Cloudflare, deixe a nuvem **cinza** ("Somente DNS").
+2. No GitHub: **Settings** → **Pages** → **Custom domain** → digite `biblia.kingdomapps.net` → **Save**. O GitHub confere o DNS (pode levar de minutos a algumas horas).
+3. Quando aparecer "DNS check successful", marque **Enforce HTTPS**.
+4. Aba **Actions** → **Publicar app** → **Run workflow**. O app se ajusta sozinho ao novo endereço (links, prévias do WhatsApp, ícones).
+5. Recomendado: em **Settings → Pages**, verifique o domínio (**Verify domain**, nas configurações da sua conta) para ninguém mais usá-lo no GitHub.
+
+> 💡 Leituras baixadas e o "continue de onde parou" ficam guardados por endereço. Quem já usava o endereço antigo vai precisar baixar de novo no endereço novo. O endereço antigo passa a redirecionar para o novo.

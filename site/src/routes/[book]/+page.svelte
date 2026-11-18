@@ -5,11 +5,26 @@
   import { toast } from '$lib/toast.svelte.js';
   import Seo from '$lib/components/Seo.svelte';
   import Icon from '$lib/components/Icon.svelte';
+  import { downloads } from '$lib/offline.svelte.js';
+  import { track } from '$lib/analytics.js';
 
   let { data } = $props();
   const b = $derived(data.book);
   async function share() {
-    if ((await sharePage({ title: `${b.name} · ${t.appName}`, text: `${b.name}: leituras em áudio` })) === 'copied') toast.show(t.shareCopied);
+    const result = await sharePage({ title: `${b.name} · ${t.appName}`, text: `${b.name}: leituras em áudio` });
+    if (result === 'copied') toast.show(t.shareCopied);
+    if (result !== 'cancelled') track('share', { content_type: 'book', item_id: b.slug, method: result });
+  }
+
+  // Whole-book download (every reading of the book, all narrators).
+  const withAudio = $derived(b.readings.filter((r) => r.audioUrl));
+  const missing = $derived(withAudio.filter((r) => !downloads.has(r)));
+  // 64 kbps ≈ 8 kB per second of audio.
+  const aboutMb = $derived(Math.max(1, Math.round(missing.reduce((s, r) => s + (r.durationSec || 0), 0) * 8000 / 1024 ** 2)));
+  const busy = $derived(downloads.batch?.label === b.name);
+  async function downloadBook() {
+    const failed = await downloads.addMany(missing, b.name);
+    toast.show(failed ? t.someFailed(failed) : t.bookDownloaded, 4000);
   }
 </script>
 
@@ -46,6 +61,23 @@
       {/each}
     </ol>
     <p class="legend muted"><span><i class="k-on"></i>{t.withAudio}</span><span><i class="k-off"></i>{t.notRecorded}</span></p>
+
+    {#if downloads.supported && withAudio.length}
+      <div class="dl card">
+        {#if busy}
+          <p class="dl-title">{t.downloadingBook(downloads.batch.done, downloads.batch.total)}</p>
+          <span class="progress"><i style="width:{(downloads.batch.done / Math.max(1, downloads.batch.total)) * 100}%"></i></span>
+        {:else if missing.length}
+          <button class="dl-btn" onclick={downloadBook} disabled={!!downloads.batch}>
+            <Icon name="download" />
+            <span><span class="dl-title">{t.downloadBook(missing.length)}</span><span class="muted dl-sub">{t.downloadBookAbout(aboutMb)}</span></span>
+          </button>
+        {:else}
+          <p class="dl-title done"><Icon name="check" size={18} /> {t.bookDownloaded}</p>
+        {/if}
+      </div>
+      <a class="to-downloads muted" href="{base}/baixados/">{t.downloadsLink(downloads.count)} ›</a>
+    {/if}
   </div>
 </main>
 
@@ -64,5 +96,14 @@
   .grid .off { border: 1.5px dashed rgba(67, 48, 44, .2); color: rgba(67, 48, 44, .38); }
   .legend { display: flex; gap: 16px; font-size: 12px; margin-top: 14px; }
   .legend i { width: 12px; height: 12px; border-radius: 4px; display: inline-block; vertical-align: -1px; margin-right: 6px; }
-  .k-on { background: var(--rose); } .k-off { border: 1.5px dashed rgba(67, 48, 44, .35); }
+  .k-on { background: var(--rose); }
+  .dl { margin-top: 26px; padding: 14px 16px; }
+  .dl-btn { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; color: var(--rose); }
+  .dl-btn span { display: flex; flex-direction: column; }
+  .dl-btn:disabled { opacity: .5; }
+  .dl-title { margin: 0 0 8px; font-size: 15px; }
+  .dl-btn .dl-title { margin: 0; }
+  .dl-sub { font-size: 12px; }
+  .done { display: flex; align-items: center; gap: 8px; color: var(--sage); margin: 0; }
+  .to-downloads { display: block; text-align: right; font-size: 13px; margin-top: 10px; } .k-off { border: 1.5px dashed rgba(67, 48, 44, .35); }
 </style>

@@ -7,5 +7,11 @@ export const trailingSlash = 'always';
 
 export function load() {
   // SITE_URL is the public address, e.g. https://user.github.io/repo (set by the deploy workflow).
-  return { index: siteIndex(), siteUrl: (process.env.SITE_URL || '').replace(/\/$/, ''), basePath: base };
+  return {
+    index: siteIndex(),
+    siteUrl: (process.env.SITE_URL || '').replace(/\/$/, ''),
+    basePath: base,
+    // Google Analytics 4 measurement id (G-XXXXXXX); empty = analytics off. See docs/SETUP, section 5.
+    gaId: /^G-[A-Z0-9]+$/.test(process.env.GA_MEASUREMENT_ID || '') ? process.env.GA_MEASUREMENT_ID : null,
+  };
 }

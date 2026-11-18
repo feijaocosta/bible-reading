@@ -1,6 +1,7 @@
 <script>
   import { base } from '$app/paths';
-  import { page } from '$app/state';
+  import { goto } from '$app/navigation';
+  import { track } from '$lib/analytics.js';
   import { t } from '$lib/strings.js';
   import { formatTime } from '$lib/text.js';
   import { player } from '$lib/player.svelte.js';
@@ -24,7 +25,15 @@
   async function share() {
     const result = await sharePage({ title: `${r.title} — ${t.readBy}: ${r.narrator}`, text: `${r.title}, ${t.readBy.toLowerCase()} de ${r.narrator}`, url: shareUrl });
     if (result === 'copied') toast.show(t.shareCopied);
+    if (result !== 'cancelled') track('share', { content_type: 'reading', item_id: r.id, method: result });
   }
+
+  // Autoplay moved on from this reading: follow it to the next page.
+  $effect(() => {
+    const adv = player.advanced;
+    if (adv && adv.fromId === r.id) goto(`${base}${adv.to.path}`, { noScroll: false, keepFocus: true });
+  });
+  $effect(() => downloads.remember(r));
   async function toggleDownload() {
     try {
       if (downloads.has(r)) await downloads.remove(r);
@@ -77,8 +86,11 @@
           <Icon name={active && player.playing ? 'pause' : 'play'} size={32} color="#fff" />
         </button>
         <button class="skip" onclick={() => (active ? player.skip(15) : player.play(r))} aria-label={t.forward15}><Icon name="fwd15" size={38} /><small>15</small></button>
-        <span class="speed ghost" aria-hidden="true"></span>
+        <button class="speed auto" class:on={player.autoplay} onclick={() => player.toggleAutoplay()} aria-pressed={player.autoplay} aria-label={player.autoplay ? t.autoplayOn : t.autoplayOff} title={player.autoplay ? t.autoplayOn : t.autoplayOff}>
+          <Icon name="autoplay" size={20} />
+        </button>
       </div>
+      {#if player.autoplay}<p class="auto-note muted">{t.autoplayOn}</p>{/if}
       {#if active && player.failed}
         <p class="failed" role="alert">{t.playFailed} <button onclick={() => player.retry()}>{t.tryAgain}</button></p>
       {/if}
@@ -137,7 +149,9 @@
   .spinner { position: absolute; inset: 6px; border-radius: 50%; border: 3px solid rgba(255, 255, 255, .35); border-top-color: #fff; animation: spin .9s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .speed { width: 50px; height: 34px; border-radius: 999px; background: var(--card); box-shadow: var(--shadow); font-size: 14px; font-weight: 600; color: var(--rose); }
-  .speed.ghost { visibility: hidden; }
+  .speed.auto { display: grid; place-items: center; color: var(--muted); }
+  .speed.auto.on { background: var(--rose); color: #fff; }
+  .auto-note { text-align: center; font-size: 12px; margin: 10px 0 0; }
   .failed { text-align: center; color: var(--rose); font-size: 14px; margin: 14px 0 0; }
   .failed button { text-decoration: underline; color: inherit; margin-left: 4px; }
   .skip { width: 52px; height: 52px; display: grid; place-items: center; position: relative; }

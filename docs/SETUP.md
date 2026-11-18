@@ -276,3 +276,49 @@ Readings published before the app's own audio existed show the YouTube video in 
 ### Where the audio lives
 
 The MP3s are stored in **GitHub Releases** (one release per book). Every time the app is published, they are copied into the GitHub Pages site itself, because iPhones can't play audio straight from Releases. A GitHub Pages site can be **up to 1 GB**, roughly **500 readings** of 4 minutes. The **Publicar app** run summary shows how much is used and warns above 85%. At that point, it's time to move the audio to another free host (for example, the Internet Archive).
+
+## 5. Google Analytics (optional)
+
+The app already sends events to Google Analytics 4. Until an id is configured, **nothing is loaded or sent**.
+
+1. Go to [analytics.google.com](https://analytics.google.com) → **Admin** (gear) → **Create** → **Property**. Name: `Bíblia lida por elas`. Brazil time zone and currency.
+2. Choose **Web** as the platform. URL: the app address (section 4 or 6). Stream name: `App`.
+3. Copy the **Measurement ID**, which starts with `G-`.
+4. On GitHub: **Settings** → **Secrets and variables** → **Actions** → **Variables** tab → **New repository variable**. Name: `GA_MEASUREMENT_ID`. Value: the `G-...`.
+5. **Actions** tab → **Publicar app** → **Run workflow**. Within minutes, visits show up under **Reports → Realtime**.
+
+### Events sent
+
+| Event | When | Details |
+|---|---|---|
+| `page_view` | every screen opened | address and title |
+| `audio_play` | a reading starts playing | book, part, narrator, online/offline |
+| `audio_progress` | 25%, 50% and 75% heard | book, percent |
+| `audio_complete` | the reading reached the end | book, narrator |
+| `autoplay_toggle` / `autoplay_next` | autoplay switched on/off / moved to the next reading | — |
+| `speed_change` | playback speed changed | speed |
+| `download` | a reading or a whole book downloaded | reading or book |
+| `download_remove` | downloads deleted | one or all |
+| `share` | share button | reading or book, how it was shared |
+| `search` | search typed | term |
+| `app_installed` / `app_update` | app installed / reloaded for a new version | — |
+
+> ⚖️ **Privacy laws (LGPD in Brazil, GDPR in Europe):** Google Analytics uses cookies. Before turning it on, add a privacy notice to the app (and, if preferred, a consent prompt).
+
+## 6. Custom domain
+
+To serve the app at an address like `biblia.kingdomapps.net` instead of `feijaocosta.github.io/bible-reading`:
+
+1. In your domain's DNS panel (wherever `kingdomapps.net` is managed: Cloudflare, Registro.br, GoDaddy...), create a **CNAME** record:
+
+   | Type | Name | Value |
+   |---|---|---|
+   | CNAME | `biblia` (the chosen subdomain) | `feijaocosta.github.io` |
+
+   On Cloudflare, keep the cloud **grey** ("DNS only").
+2. On GitHub: **Settings** → **Pages** → **Custom domain** → type `biblia.kingdomapps.net` → **Save**. GitHub checks the DNS (from minutes to a few hours).
+3. When it says "DNS check successful", check **Enforce HTTPS**.
+4. **Actions** tab → **Publicar app** → **Run workflow**. The app adapts to the new address by itself (links, WhatsApp previews, icons).
+5. Recommended: verify the domain in your GitHub account settings (**Pages → Verify domain**) so nobody else can use it on GitHub.
+
+> 💡 Downloads and "continue where you left off" are stored per address. People who used the old address need to download again at the new one. The old address redirects to the new one.

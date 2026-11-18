@@ -88,7 +88,7 @@ Run the tests with `npm test` inside `pipeline/`.
 
 ## The app
 
-The PWA in `site/` lists the readings by testament and book and plays each reading's own MP3. It keeps playing with the screen locked, can download readings for offline listening, and gives every reading a shareable address. To run it locally:
+The PWA in `site/` lists the readings by testament and book and plays each reading's own MP3. It keeps playing with the screen locked, can download single readings or whole books for offline listening (managed on a Downloads screen), can autoplay a book in sequence, tells listeners when a new version is available, and gives every reading a shareable address. Google Analytics 4 is wired in and stays off until a measurement id is set. To run it locally:
 
 ```bash
 cd site

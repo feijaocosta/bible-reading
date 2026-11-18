@@ -88,7 +88,7 @@ Os testes rodam com `npm test` dentro de `pipeline/`.
 
 ## O app
 
-O PWA em `site/` lista as leituras por testamento e livro e toca o MP3 próprio de cada leitura. Ele continua tocando com a tela bloqueada, permite baixar as leituras para ouvir sem internet e dá a cada leitura um endereço para compartilhar. Para rodar localmente:
+O PWA em `site/` lista as leituras por testamento e livro e toca o MP3 próprio de cada leitura. Ele continua tocando com a tela bloqueada, permite baixar leituras ou livros inteiros para ouvir sem internet (com uma tela de Baixados), toca um livro em sequência, avisa quando há uma nova versão e dá a cada leitura um endereço para compartilhar. O Google Analytics 4 já está preparado e fica desligado até alguém configurar o ID. Para rodar localmente:
 
 ```bash
 cd site

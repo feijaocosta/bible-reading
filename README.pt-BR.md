@@ -51,7 +51,7 @@ Em construção, por fases:
 - [x] F0 — Estrutura base e dados dos livros
 - [x] F1 — Pipeline local (arte + MP4) e identidade visual
 - [x] F2 — Execução manual no GitHub Actions
-- [ ] F3 — Upload no YouTube + catálogo
+- [x] F3 — Upload no YouTube + catálogo
 - [ ] F4 — Entrada pelo Google Forms
 - [ ] F5 — PWA
 - [ ] F6 — Retorno do status na planilha

@@ -127,11 +127,13 @@ O GitHub vai usar esta autorização para enviar vídeos em nome do canal. Ela �
 
 ### 2.8. Pedir a auditoria da API (importante)
 
-Enquanto o projeto do Google Cloud não for auditado, **todo vídeo enviado pela API fica preso como privado**, e não é possível recorrer depois. A auditoria é gratuita.
+Pela documentação do YouTube, vídeos enviados por um projeto de API **não auditado** podem ser travados como **privados**, sem possibilidade de recurso. A auditoria é gratuita.
+
+> 📝 No nosso primeiro teste (nov/2026), o vídeo saiu **público mesmo sem auditoria**. Ainda assim, peça a auditoria: a regra continua na documentação, a trava pode acontecer depois do envio e a auditoria também é o caminho para pedir mais cota. Se algum vídeo aparecer como privado sem você ter pedido, a causa é essa.
 
 1. Abra o formulário [YouTube API Services – Audit and Quota Extension](https://support.google.com/youtube/contact/yt_api_form).
 2. Escolha a opção de auditoria (audit) e preencha com os dados do projeto (nome e número do projeto aparecem no painel do Google Cloud). Explique o uso: *"Uploads automáticos de leituras bíblicas gravadas por voluntárias para o nosso próprio canal; uso interno, sem usuários externos."*
-3. A resposta pode levar algumas semanas. Até lá, use `YT_PRIVACY` = `private` para testar.
+3. A resposta pode levar algumas semanas. Enquanto isso, confira de vez em quando no YouTube Studio se os vídeos continuam com a visibilidade escolhida.
 
 ### 2.9. Testar
 

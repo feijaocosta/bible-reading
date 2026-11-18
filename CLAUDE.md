@@ -208,7 +208,7 @@ Nomes dos livros conforme a **NVI** (Nova Versão Internacional). Cada item tem 
 ## 8. Limitações conhecidas (documentar no SETUP)
 
 - **App OAuth em modo "Teste"** faz o refresh token expirar em cerca de 7 dias. Coloque o app em **produção**.
-- **Projetos de API não auditados** podem ter os envios travados como privados. Peça a auditoria do YouTube API Services (é gratuita).
+- **Projetos de API não auditados** podem ter os envios travados como privados. Peça a auditoria do YouTube API Services (é gratuita). No primeiro teste real (18/nov/2026), o vídeo saiu público mesmo sem auditoria; a trava pode vir depois, então a auditoria segue recomendada.
 - **Cota:** em nov/2026 as fontes divergiam (upload a ~1.600 de 10.000 unidades/dia, ~6/dia, ou cota própria de ~100 uploads/dia desde dez/2025); não foi possível checar a página oficial. O SETUP manda conferir em Cloud Console → Cotas. Com `quotaExceeded`, a execução falha com mensagem clara e o MP4 fica no artifact.
 - Use `concurrency` no workflow para que duas leituras simultâneas não briguem no commit do `readings.json`.
 
@@ -221,7 +221,7 @@ Cada fase termina com algo testável. **Não avance sem a anterior funcionando.*
 - [x] **F0 — Base:** estrutura de pastas, `books.json` completo (66 livros, nomes NVI, nº de capítulos), READMEs (en + pt-BR) e `.gitignore`.
 - [x] **F1 — Pipeline local + identidade:** propostas de identidade visual; `node pipeline/src/index.js --audio x.ogg --book "Gênesis" --chapter 1 --narrator "Maria" --testament OT` gera `artwork.png` e `output.mp4` localmente, sem Drive nem YouTube.
 - [x] **F2 — Actions manual:** workflow com `workflow_dispatch` (inputs manuais + URL ou caminho do áudio de teste) gera o MP4 e publica como artifact.
-- [ ] **F3 — YouTube + catálogo:** upload, playlist, atualização do `readings.json` com commit pelo bot. Idempotente.
+- [x] **F3 — YouTube + catálogo:** upload, playlist, atualização do `readings.json` com commit pelo bot. Idempotente.
 - [ ] **F4 — Entrada pelo Forms:** download do Drive via service account + `apps-script/Code.gs` disparando o `repository_dispatch`.
 - [ ] **F5 — PWA:** escolha do framework, navegação, player, instalação, deploy no Pages.
 - [ ] **F6 — Retorno para a coordenadora:** o workflow escreve status (`processando` / `publicado` / `erro`) e o link do vídeo de volta na planilha de respostas.

@@ -51,7 +51,7 @@ Work in progress, built in phases:
 - [x] F0 — Base structure and book data
 - [x] F1 — Local pipeline (artwork + MP4) and visual identity
 - [x] F2 — Manual GitHub Actions run
-- [ ] F3 — YouTube upload + catalog
+- [x] F3 — YouTube upload + catalog
 - [ ] F4 — Google Forms input
 - [ ] F5 — PWA
 - [ ] F6 — Status feedback in the spreadsheet

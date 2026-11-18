@@ -47,6 +47,17 @@ jobs:
           npm ci
           npm run build
 
+      # MP3s and covers live in GitHub Releases but are served from Pages (Safari can't play Release
+      # downloads). The cache keeps files from earlier deploys, so only new ones are downloaded.
+      - uses: actions/cache@v4
+        with:
+          path: site/.media-cache
+          key: app-media-${{ hashFiles('data/readings.json') }}
+          restore-keys: app-media-
+
+      - name: Add the app audio
+        run: node site/scripts/fetch-media.js site/build site/.media-cache
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site/build

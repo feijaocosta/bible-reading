@@ -9,6 +9,14 @@ export default {
     adapter: adapter({ pages: 'build', assets: 'build', fallback: '404.html', strict: true }),
     paths: { base, relative: false },
     // With an empty catalog (a fresh install) the dynamic routes have nothing to render yet: just warn.
-    prerender: { handleHttpError: 'fail', handleMissingId: 'fail', handleUnseenRoutes: 'warn' },
+    prerender: {
+      // /audio/ (MP3 + covers) is copied into the build after prerendering (scripts/fetch-media.js).
+      handleHttpError: ({ path, message }) => {
+        if (path.startsWith(`${base}/audio/`)) return;
+        throw new Error(message);
+      },
+      handleMissingId: 'fail',
+      handleUnseenRoutes: 'warn',
+    },
   },
 };

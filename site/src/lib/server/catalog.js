@@ -4,12 +4,17 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { slugify } from '$lib/text.js';
 import { t } from '$lib/strings.js';
+import { base } from '$app/paths';
+import { isReleaseAsset, mediaPath } from '$lib/media.js';
 
 // The build runs from site/; READINGS_FILE lets local previews use sample data.
 const DATA = path.resolve(process.cwd(), '..', 'data');
 const PART_SEGMENT = { intro: 'introducao', closing: 'encerramento' };
 const PART_RANK = { intro: 0, chapter: 1, closing: 2 };
 const AVATAR_VARIANTS = 5;
+
+// Release media is served from this site (copied at deploy time); other URLs are used as they are.
+const local = (url) => (url && isReleaseAsset(url) ? `${base}${mediaPath(url)}` : url ?? null);
 
 let cache;
 
@@ -63,8 +68,8 @@ function load() {
       narratorPath: `/leitora/${narratorSlug}/`,
       avatar: hash(narratorSlug) % AVATAR_VARIANTS,
       youtubeId: r.youtubeId,
-      audioUrl: r.audioUrl ?? null,
-      coverUrl: r.coverUrl ?? (r.youtubeId ? `https://i.ytimg.com/vi/${r.youtubeId}/maxresdefault.jpg` : null),
+      audioUrl: local(r.audioUrl),
+      coverUrl: local(r.coverUrl) ?? (r.youtubeId ? `https://i.ytimg.com/vi/${r.youtubeId}/maxresdefault.jpg` : null),
       durationSec: r.durationSec,
       publishedAt: r.publishedAt,
     };

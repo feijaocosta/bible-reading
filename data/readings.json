@@ -43,5 +43,20 @@
     "coverUrl": "https://github.com/feijaocosta/bible-reading/releases/download/audio-tiago/tiago-2-rosana-moraes-a99bea.jpg",
     "durationSec": 266,
     "publishedAt": "2026-11-18T15:01:45.101Z"
+  },
+  {
+    "id": "2_ABaOnueHxcCcXhHgy2aBZ4N6h2m72lLUtjkxEcDifQ_Q4aVP62i4zypW57l1QgPRZjghqno",
+    "testament": "NT",
+    "book": "2 Pedro",
+    "bookSlug": "2-pedro",
+    "bookOrder": 61,
+    "part": "intro",
+    "chapter": null,
+    "narrator": "Silceia",
+    "youtubeId": "hc26Zg5xcOc",
+    "audioUrl": "https://github.com/feijaocosta/bible-reading/releases/download/audio-2-pedro/2-pedro-intro-silceia-979463.mp3",
+    "coverUrl": "https://github.com/feijaocosta/bible-reading/releases/download/audio-2-pedro/2-pedro-intro-silceia-979463.jpg",
+    "durationSec": 59,
+    "publishedAt": "2026-11-19T00:35:51.960Z"
   }
 ]

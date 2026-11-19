@@ -45,6 +45,21 @@
     "publishedAt": "2026-11-18T15:01:45.101Z"
   },
   {
+    "id": "2_ABaOnucIwzK09xWJ4gDLRqDpsMjI5JkYMOJcyp9ZsUSLSFdtjFCjr9HJDCAY3QIVAm_qvFc",
+    "testament": "NT",
+    "book": "1 Pedro",
+    "bookSlug": "1-pedro",
+    "bookOrder": 60,
+    "part": "intro",
+    "chapter": null,
+    "narrator": "Isa",
+    "youtubeId": "spwDYTGHIqc",
+    "audioUrl": "https://github.com/feijaocosta/bible-reading/releases/download/audio-1-pedro/1-pedro-intro-isa-a491c9.mp3",
+    "coverUrl": "https://github.com/feijaocosta/bible-reading/releases/download/audio-1-pedro/1-pedro-intro-isa-a491c9.jpg",
+    "durationSec": 66,
+    "publishedAt": "2026-11-19T01:03:36.481Z"
+  },
+  {
     "id": "2_ABaOnueHxcCcXhHgy2aBZ4N6h2m72lLUtjkxEcDifQ_Q4aVP62i4zypW57l1QgPRZjghqno",
     "testament": "NT",
     "book": "2 Pedro",

@@ -1,4 +1,7 @@
 // All user-facing text in one place (Portuguese), so the app can be translated later.
+// Parent site (kingdomapps.net): project page and privacy policy, linked from the footer.
+export const PARENT_SITE = 'https://kingdomapps.net';
+
 export const t = {
   appName: 'Bíblia lida por elas',
   tagline: 'Mulheres lendo a Bíblia em voz alta, capítulo a capítulo',
@@ -66,6 +69,22 @@ export const t = {
   unknownReading: 'Leitura baixada',
   updateAvailable: 'Nova versão disponível',
   update: 'Atualizar',
+  // Search titles/descriptions (unique per page). "lido"/"lida" agrees with capítulo/introdução/encerramento.
+  readingSeoTitle: (r) => r.part === 'chapter'
+    ? `${r.book} ${r.chapter} lido por ${r.narrator}`
+    : r.part === 'intro' ? `Introdução de ${r.book} lida por ${r.narrator}` : `Encerramento de ${r.book} lido por ${r.narrator}`,
+  readingSeoDescription: (r, testament) => {
+    const what = r.part === 'chapter' ? `${r.book} ${r.chapter}` : `${r.part === 'intro' ? 'a introdução' : 'o encerramento'} de ${r.book}`;
+    return `Ouça ${what} (${testament}) na voz de ${r.narrator}. Leitura em áudio da Bíblia, versão NVI, do projeto Bíblia lida por elas.`;
+  },
+  bookSeoDescription: (b, testament, narrators) =>
+    `Ouça ${b.name} (${testament}) em áudio, lido por mulheres, capítulo a capítulo: ${b.done} de ${b.total} ${b.total === 1 ? 'capítulo gravado' : 'capítulos gravados'} até agora${narrators.length ? `, com leituras de ${narrators.join(', ')}` : ''}.`,
+  narratorSeoDescription: (name, n, books) =>
+    `${n} ${n === 1 ? 'leitura' : 'leituras'} da Bíblia em áudio na voz de ${name}${books.length ? `: ${books.join(', ')}` : ''}. Projeto Bíblia lida por elas.`,
+  homeSeoDescription: 'Bíblia em áudio lida por mulheres, capítulo a capítulo. Ouça por livro e por leitora, baixe para ouvir sem internet e compartilhe cada leitura.',
+  footerAbout: 'Sobre o projeto',
+  footerPrivacy: 'Privacidade',
+  footerBy: 'Um projeto KingdomApps',
   offline: 'baixado (ouve sem internet)',
   offlineShort: 'baixado',
 };

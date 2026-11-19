@@ -15,7 +15,7 @@
   }
 </script>
 
-<Seo title={n.name} description="{t.readings(n.readings.length)} de {n.name} no {t.appName}." />
+<Seo title="Leituras de {n.name}" description={t.narratorSeoDescription(n.name, n.readings.length, [...new Set(n.readings.map((r) => r.title))])} />
 
 <main class="page">
   <div class="wash" style="height:190px"><img src="{base}/art/header-plain.svg" alt="" /></div>

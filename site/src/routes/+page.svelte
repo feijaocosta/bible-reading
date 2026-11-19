@@ -36,7 +36,7 @@
   const isNew = (r) => Date.now() - new Date(r.publishedAt).getTime() < 7 * 864e5;
 </script>
 
-<Seo />
+<Seo description={t.homeSeoDescription} />
 
 <main class="page">
   <div class="wash" style="height:250px"><img src="{base}/art/hero.svg" alt="" /></div>

@@ -31,7 +31,7 @@
   }
 </script>
 
-<Seo title={b.name} description="{b.name} ({t.testaments[b.testament]}): {t.progressRead(b.done, b.total)}." />
+<Seo title="{b.name} em áudio" description={t.bookSeoDescription(b, t.testaments[b.testament], [...new Set(b.readings.map((r) => r.narrator))])} />
 
 <main class="page">
   <div class="wash" style="height:210px"><img src="{base}/art/header.svg" alt="" /></div>

@@ -88,5 +88,20 @@
     "coverUrl": "https://github.com/feijaocosta/bible-reading/releases/download/audio-1-joao/1-joao-intro-silceia-jacinto-00de33.jpg",
     "durationSec": 43,
     "publishedAt": "2026-11-19T01:05:14.281Z"
+  },
+  {
+    "id": "2_ABaOnufXQv_SzZQ4g4xcqNYq30thWKrP-wr-O2__sCQRQj-8tWvv834kb49aLdDUZogyJjY",
+    "testament": "NT",
+    "book": "3 João",
+    "bookSlug": "3-joao",
+    "bookOrder": 64,
+    "part": "intro",
+    "chapter": null,
+    "narrator": "Silceia Jacinto",
+    "youtubeId": "Kbi75PbJwwo",
+    "audioUrl": "https://github.com/feijaocosta/bible-reading/releases/download/audio-3-joao/3-joao-intro-silceia-jacinto-5e7101.mp3",
+    "coverUrl": "https://github.com/feijaocosta/bible-reading/releases/download/audio-3-joao/3-joao-intro-silceia-jacinto-5e7101.jpg",
+    "durationSec": 56,
+    "publishedAt": "2026-11-19T01:27:31.956Z"
   }
 ]

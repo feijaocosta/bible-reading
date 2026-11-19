@@ -215,6 +215,7 @@ Nomes dos livros conforme a **NVI** (Nova Versão Internacional). Cada item tem 
 | `YT_PLAYLIST_OT` / `YT_PLAYLIST_NT` | GitHub Variables | IDs das playlists |
 | `YT_PRIVACY` | GitHub Variables | `public` / `unlisted` / `private` |
 | `GA_MEASUREMENT_ID` | GitHub Variables | (opcional) ID do Google Analytics 4 do app, `G-...` |
+| `SITE_URL` | GitHub Variables | (opcional) endereço público do app; padrão `https://biblia.kingdomapps.net` no `deploy-site.yml`. Usado no sitemap, robots, canonicals e prévias; `http://` vira `https://` |
 | `GITHUB_TOKEN_DISPATCH` | Apps Script Properties | PAT fine-grained, só neste repo (Contents: read/write) |
 
 **Nunca commitar segredos.** Inclua `.env` no `.gitignore` e um `.env.example` para testes locais.

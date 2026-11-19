@@ -42,7 +42,10 @@ jobs:
         working-directory: site
         env:
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
-          SITE_URL: ${{ steps.pages.outputs.base_url }}
+          # Public address used in sitemap.xml, robots.txt, canonicals and link previews. Fixed to the
+          # custom domain over https (configure-pages may report http://). Projects reusing this repo can
+          # set a SITE_URL repository variable instead.
+          SITE_URL: ${{ vars.SITE_URL || 'https://biblia.kingdomapps.net' }}
           # Google Analytics 4 (optional): repository variable GA_MEASUREMENT_ID, e.g. G-ABC123XYZ.
           GA_MEASUREMENT_ID: ${{ vars.GA_MEASUREMENT_ID }}
         run: |

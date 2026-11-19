@@ -318,7 +318,7 @@ To serve the app at `biblia.kingdomapps.net` instead of `feijaocosta.github.io/b
    On Cloudflare, keep the cloud **grey** ("DNS only").
 2. On GitHub: **Settings** → **Pages** → **Custom domain** → type `biblia.kingdomapps.net` → **Save**. GitHub checks the DNS (from minutes to a few hours).
 3. When it says "DNS check successful", check **Enforce HTTPS**.
-4. **Actions** tab → **Publicar app** → **Run workflow**. The app adapts to the new address by itself (links, WhatsApp previews, icons).
+4. **Actions** tab → **Publicar app** → **Run workflow**. The sitemap, robots.txt, canonical links and WhatsApp previews use `https://biblia.kingdomapps.net`, the default address in `deploy-site.yml`. If you reuse this project with another domain, create a `SITE_URL` variable (Settings → Secrets and variables → Actions → Variables) with your address, e.g. `https://readings.yourdomain.org`.
 5. Recommended: verify the domain in your GitHub account settings (**Pages → Verify domain**) so nobody else can use it on GitHub.
 
 > 💡 Downloads and "continue where you left off" are stored per address. People who used the old address need to download again at the new one. The old address redirects to the new one.

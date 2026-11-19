@@ -1,16 +1,24 @@
 <script>
-  // "Nova versão disponível": shown when a newer deploy exists (SvelteKit version polling).
+  // "Nova versão disponível": shown when a newer deploy exists. SvelteKit compares the running version
+  // with _app/version.json, which the service worker never caches. Checked right after opening, when
+  // the app returns to the foreground, and every 5 minutes (svelte.config.js). "Atualizar" reloads.
   import { updated } from '$app/state';
   import { onMount } from 'svelte';
   import { t } from '$lib/strings.js';
   import { track } from '$lib/analytics.js';
   import Icon from './Icon.svelte';
 
-  // Also check when the app comes back to the foreground (phones keep PWAs open for days).
+  function check() {
+    updated.check().catch(() => {});
+    // Also ask the browser to look for a new service worker now, instead of waiting up to a day.
+    navigator.serviceWorker?.getRegistration().then((reg) => reg?.update()).catch(() => {});
+  }
+
   onMount(() => {
-    const check = () => { if (document.visibilityState === 'visible') updated.check().catch(() => {}); };
-    document.addEventListener('visibilitychange', check);
-    return () => document.removeEventListener('visibilitychange', check);
+    const timer = setTimeout(check, 1500);
+    const onVisible = () => { if (document.visibilityState === 'visible') check(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => { clearTimeout(timer); document.removeEventListener('visibilitychange', onVisible); };
   });
 
   function reload() {

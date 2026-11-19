@@ -73,5 +73,20 @@
     "coverUrl": "https://github.com/feijaocosta/bible-reading/releases/download/audio-2-pedro/2-pedro-intro-silceia-979463.jpg",
     "durationSec": 59,
     "publishedAt": "2026-11-19T00:35:51.960Z"
+  },
+  {
+    "id": "2_ABaOnucWnfimhIskC7hnGY9jEVhgUUZ_qJwVajIIxiPUhbcMqj27C3n3Yq_8FSTQoX-1rrY",
+    "testament": "NT",
+    "book": "1 João",
+    "bookSlug": "1-joao",
+    "bookOrder": 62,
+    "part": "intro",
+    "chapter": null,
+    "narrator": "Silceia Jacinto",
+    "youtubeId": "F22t2Yc9dms",
+    "audioUrl": "https://github.com/feijaocosta/bible-reading/releases/download/audio-1-joao/1-joao-intro-silceia-jacinto-00de33.mp3",
+    "coverUrl": "https://github.com/feijaocosta/bible-reading/releases/download/audio-1-joao/1-joao-intro-silceia-jacinto-00de33.jpg",
+    "durationSec": 43,
+    "publishedAt": "2026-11-19T01:05:14.281Z"
   }
 ]

@@ -103,5 +103,20 @@
     "coverUrl": "https://github.com/feijaocosta/bible-reading/releases/download/audio-3-joao/3-joao-intro-silceia-jacinto-5e7101.jpg",
     "durationSec": 56,
     "publishedAt": "2026-11-19T01:27:31.956Z"
+  },
+  {
+    "id": "2_ABaOnuftD9fbmjJ6qw-438vnelZoVDxmjeuz4C1nDGguH8m28yk5KDJ4GpFVzt-624sEM3k",
+    "testament": "NT",
+    "book": "Judas",
+    "bookSlug": "judas",
+    "bookOrder": 65,
+    "part": "intro",
+    "chapter": null,
+    "narrator": "Silceia Jacinto",
+    "youtubeId": "h-fPck5WqWs",
+    "audioUrl": "https://github.com/feijaocosta/bible-reading/releases/download/audio-judas/judas-intro-silceia-jacinto-28ade7.mp3",
+    "coverUrl": "https://github.com/feijaocosta/bible-reading/releases/download/audio-judas/judas-intro-silceia-jacinto-28ade7.jpg",
+    "durationSec": 64,
+    "publishedAt": "2026-11-19T01:48:20.553Z"
   }
 ]

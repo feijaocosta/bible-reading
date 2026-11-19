@@ -7,6 +7,7 @@
   import { initAnalytics, trackPageView, track } from '$lib/analytics.js';
   import MiniPlayer from '$lib/components/MiniPlayer.svelte';
   import UpdateBanner from '$lib/components/UpdateBanner.svelte';
+  import Footer from '$lib/components/Footer.svelte';
   let { children, data } = $props();
   let audio;
 
@@ -22,6 +23,7 @@
 <audio bind:this={audio} preload="metadata"></audio>
 <div style="--player-h:{player.current ? '86px' : '0px'}">
   {@render children()}
+  <Footer />
 </div>
 <MiniPlayer />
 <UpdateBanner />

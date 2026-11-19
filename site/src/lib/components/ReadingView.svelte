@@ -19,7 +19,6 @@
   const time = $derived(active ? player.time : 0);
   const duration = $derived(active && player.duration ? player.duration : r.durationSec);
   const pct = $derived(duration ? (time / duration) * 100 : 0);
-  const description = $derived(`${r.title} (${t.testaments[r.testament]}). ${t.readBy}: ${r.narrator}.`);
   const shareUrl = $derived(data.siteUrl ? new URL(data.siteUrl).origin + base + r.path : `${location.origin}${base}${r.path}`);
 
   async function share() {
@@ -48,7 +47,9 @@
   }
 </script>
 
-<Seo title="{r.title} — {r.narrator}" {description} image={r.youtubeId ? `https://i.ytimg.com/vi/${r.youtubeId}/maxresdefault.jpg` : r.coverUrl} />
+<!-- /tiago/1/ shows the latest reading of the part, so both URLs point search engines to the specific one. -->
+<Seo title={t.readingSeoTitle(r)} description={t.readingSeoDescription(r, t.testaments[r.testament])} canonical={r.path}
+  image={r.youtubeId ? `https://i.ytimg.com/vi/${r.youtubeId}/maxresdefault.jpg` : r.coverUrl} />
 
 <main class="page">
   <nav class="topbar">

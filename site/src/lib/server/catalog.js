@@ -194,3 +194,19 @@ export function narrator(slug) {
     readings: mine.map(card),
   };
 }
+
+// Every indexable page with its last change, for sitemap.xml. Part pages (/tiago/1/) are left out:
+// they show the latest reading, whose own URL is the canonical one.
+export function sitemapEntries() {
+  const { readings } = load();
+  const latest = (list) => list.reduce((max, r) => (String(r.publishedAt) > max ? String(r.publishedAt) : max), '');
+  const entries = [{ path: '/', lastmod: latest(readings) }];
+  for (const slug of [...new Set(readings.map((r) => r.bookSlug))]) {
+    entries.push({ path: `/${slug}/`, lastmod: latest(readings.filter((r) => r.bookSlug === slug)) });
+  }
+  for (const r of readings) entries.push({ path: r.path, lastmod: String(r.publishedAt) });
+  for (const slug of [...new Set(readings.map((r) => r.narratorSlug))]) {
+    entries.push({ path: `/leitora/${slug}/`, lastmod: latest(readings.filter((r) => r.narratorSlug === slug)) });
+  }
+  return entries;
+}

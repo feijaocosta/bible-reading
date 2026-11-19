@@ -27,7 +27,7 @@
   }
 </script>
 
-<Seo title={t.downloadsTitle} />
+<Seo title={t.downloadsTitle} noindex />
 
 <main class="page">
   <div class="wash" style="height:190px"><img src="{base}/art/header-plain.svg" alt="" /></div>
